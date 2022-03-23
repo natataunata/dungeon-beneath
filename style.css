@@ -1,0 +1,194 @@
+@font-face {
+    font-family: myFirstFont;
+    src: url("Font/Perfect DOS VGA 437.ttf");
+}
+
+html, body {
+height: 100%; /* necessary */
+min-height: 100%;
+background-color: #080809;
+padding: 0;
+margin: 0;
+/*font-family: myFirstFont;*/
+font-family: Courier;
+font-weight: bold;
+/*box-sizing: border-box;*/
+}
+
+/* Dead Simple Grid (c) 2015 Vladimir Agafonkin */
+
+.row .row { margin:  0 -1.5em; }
+.col      { padding: 0  1.5em; }
+
+@media only screen { .col {
+    width: 100%;
+    box-sizing: border-box;
+	display: inline-block;
+}}
+
+.wrapper {
+min-height: 100%;
+height: auto !important; /* modern Browser */
+padding: 0;
+margin: 0;
+}
+
+.body {
+	border-radius: 0.5em;
+	border: 0.2em #C0AD94 solid;
+	background-color: #DBCAAB;
+	margin: 0 2em;
+	padding: 1em;
+}
+
+.menu {
+	margin: auto;
+	width: 10em;
+	color: #eee;
+	text-align: center;
+}
+
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	border: 1px solid black;
+	height: 4em;
+	width: 40em;
+	display: inline-block;
+}
+
+li > span {
+	display: inline-block;
+	vertical-align: middle;
+}
+.sprite_bg {
+	text-align: center;
+	width: 4em;
+	height: 4em;
+	line-height: 4em;
+	background: radial-gradient(farthest-side at center,white, #DBCAAB);
+}
+.sprite_bg.upgrade {
+	background: radial-gradient(farthest-side at center,purple, #DBCAAB);
+}
+.sprite_bg svg {
+	font-size: 24px;
+	width: 2em;
+	height: 2em;
+	vertical-align: middle;
+}
+.sprite_bg.s16 svg {
+	font-size: 16px;
+}
+
+.stats > span, .name > span {
+	display: inline-block;
+	width: 100%;
+}
+
+.stats {
+	width: 2em;
+}
+.unit .stats {
+	width: 6em;
+}
+.name {
+	width: 32em;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 0.25em;
+}
+.item .name {
+	width: 44em;
+}
+.hero .n_name {
+	width: 75%;
+}
+
+.n_ability {
+	height: 2em;
+	display: table-cell !important;
+	vertical-align: bottom;
+}
+
+.hero .n_tag {
+	width: 25%;
+	text-align: right;
+}
+.hero .n_title {
+	float: right;
+}
+
+.item {
+	width: 52em;
+}
+
+.item .n_name {
+	width: 50%;
+}
+.item .n_tag {
+	width: 25%;
+}
+.item .n_cost {
+	width: 25%;
+	text-align: right;
+}
+.n_ability {
+	font-style: italic;
+}
+.artifact {
+	width: 30em;
+}
+.artifact .name {
+	width: 26em;
+	vertical-align: top;
+}
+
+.unit {
+	width: 42em;
+}
+.unit .name {
+	width: 32em;
+}
+.unit .n_name {
+	width: 50%;
+}
+.unit .n_tag {
+	width: 35%;
+}
+.unit .n_tag + .n_tag {
+	text-align: right;
+	width: 15%;
+}
+.unit .ability {
+	width: 23em;
+}
+
+.atk::before {content: "⚔"; color: grey;}
+.hp::before {content: "❤"; font-size: 0.75em; color: red;}
+.spd::before {content: "⪼"; font-size: 0.65em; color: white;}
+.n_cost::after {content:"●"; color: gold; font-size: 1.5em; line-height: 0.66666em;}
+
+.n_title {font-style: italic; font-size: 0.75em;}
+.n_tag {text-transform: uppercase; font-size: 0.75em;}
+
+.trigger {color: purple; cursor: help; font-style: italic;}
+.summon {color: darkblue; cursor: help; font-style: italic;}
+
+#tooltip {
+	background: lightcyan;
+}
+#tooltip .sprite_bg {
+	background: radial-gradient(farthest-side at center,white, lightcyan);
+}
+#tooltip .sprite_bg.upgrade {
+	background: radial-gradient(farthest-side at center,purple, lightcyan);
+}
+
+ul {
+	display: none;
+}
