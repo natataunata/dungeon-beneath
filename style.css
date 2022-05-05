@@ -11,7 +11,8 @@ Try to avoid nested selectors, except for state-modifier
 	=> bgcolor/color _ neutral/primary/secondary/error _ lightness (10 is always white, 0 black)
 */
 /* Background and Surface must have bg-color against which color is legible */
-:root {
+@media (prefers-color-scheme: light) {
+	:root {
 	--color_neutral_0: black;
 	--color_neutral_1: #080809;
 	--color_neutral_2: #241800;
@@ -25,9 +26,19 @@ Try to avoid nested selectors, except for state-modifier
 	--color_path_3: #bf9398;
 	--color_path_4: #9b93bf;
 	
+	--color_filter_blue: darkblue;
+	--color_filter_red: darkred;
+	--color_filter_green: darkgreen;
+	--color_filter_bgblue: lightblue;
+	--color_filter_bgred: salmon;
+	--color_filter_bggreen: lightgreen;
+	--color_filter_neutral: black;
+	--color_filter_bgneutral: lightgrey;
+	
 	--color_info: purple;
 	--color_link: darkblue;
 	--color_andromalius: purple;
+	}
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,8 +56,18 @@ Try to avoid nested selectors, except for state-modifier
 	--color_path_3: #230007;
 	--color_path_4: #0e0023;
 	
-	--color_info: purple;
-	--color_link: darkblue;
+	--color_filter_blue: lightblue;
+	--color_filter_red: salmon;
+	--color_filter_green: lightgreen;
+	--color_filter_bgblue: darkblue;
+	--color_filter_bgred: darkred;
+	--color_filter_bggreen: darkgreen;
+	--color_filter_neutral: lightgrey;
+	--color_filter_bgneutral: black;
+	
+	--color_info: salmon;
+	--color_link: lightblue;
+	--color_andromalius: purple;
 	}
 }
 
@@ -110,10 +131,6 @@ h1, h2 {
 	font-weight: bold;
 }
 
-.jumpTo {
-	cursor: pointer;
-}
-
 .floor1.even {background: var(--color_path_1);}
 .floor2.even {background: var(--color_path_2);}
 .floor3.even {background: var(--color_path_3);}
@@ -124,7 +141,7 @@ h1, h2 {
 	background-color: var(--color_neutral_8);
 	box-sizing: border-box;
 	display: inline-grid;
-	border: 1px solid black;
+	border: 1px solid var(--color_neutral_0);
 	grid-template-columns: auto 1fr;
 	grid-template-areas:
 		'sprite stats'
@@ -267,32 +284,32 @@ svg {
 	opacity: 0.5;
 }
 .filter_keyword + label {
-	color: darkgreen;
+	color: var(--color_filter_green);
 }
 .filter_race + label {
-	color: darkblue;
+	color: var(--color_filter_blue);
 }
 .filter_job + label {
-	color: darkred;
+	color: var(--color_filter_red);
 }
 
 .filter_keyword:checked + label {
 	opacity: 1;
-	background: lightgreen;
-	color: black;
+	background: var(--color_filter_bggreen);
+	color: var(--color_filter_neutral);
 }
 .filter_race:checked + label {
 	opacity: 1;
-	background: lightblue;
-	color: black;
+	background: var(--color_filter_bgblue);
+	color: var(--color_filter_neutral);
 }
 .filter_job:checked + label {
 	opacity: 1;
-	background: salmon;
-	color: black;
+	background: var(--color_filter_bgred);
+	color: var(--color_filter_neutral);
 }
 .filter_floor:checked + label {
 	opacity: 1;
-	background: lightgrey;
-	color: black;
+	background: var(--color_filter_bgneutral);
+	color: var(--color_filter_neutral);
 }
