@@ -174,7 +174,9 @@ for(var i = 1, iMax = data.item.length; i < iMax; i++) {
 */
 
 var artifactNode = document.getElementById('ul_artifact');
-for(var i = 1, iMax = data.artifact.length; i < iMax; i++) {
+data.artifact.shift();
+data.artifact.sort();
+for(var i = 0, iMax = data.artifact.length; i < iMax; i++) {
 	artifactNode.appendChild(
 		create('li', {className: 'sheet artifact', id: 'artifact_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.artifact[i][2])),
