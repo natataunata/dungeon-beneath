@@ -20,6 +20,11 @@ Try to avoid nested selectors, except for state-modifier
 	--color_neutral_8: #DBCAAB;
 	--color_neutral_10: white;
 	
+	--color_path_1: #b5bf93;
+	--color_path_2: #93bfb3;
+	--color_path_3: #bf9398;
+	--color_path_4: #9b93bf;
+	
 	--color_info: purple;
 	--color_link: darkblue;
 	--color_andromalius: purple;
@@ -34,6 +39,11 @@ Try to avoid nested selectors, except for state-modifier
 	--color_neutral_7: #241800;
 	--color_neutral_8: #080809;
 	--color_neutral_10: black;
+	
+	--color_path_1: #172300;
+	--color_path_2: #001a23;
+	--color_path_3: #230007;
+	--color_path_4: #0e0023;
 	
 	--color_info: purple;
 	--color_link: darkblue;
@@ -72,6 +82,7 @@ h1, h2 {
 	display: inline-block;
 	padding: 1rem;
 	border-bottom: 0.2rem dotted var(--color_neutral_1);
+	margin-bottom: 0.5em;
 }
 .menuItem {
 	width: 6rem;
@@ -79,6 +90,34 @@ h1, h2 {
 	color: var(--color_link);
 	cursor: pointer;
 }
+
+.floor {
+	width: 42em;
+	margin: auto;
+	min-height: 3rem;
+	line-height: 3rem;
+	border: 1px solid var(--color_neutral_2);
+	background: var(--color_neutral_8);
+	margin-bottom: 0.5em;
+	padding: 0.5em;
+	box-sizing: border-box;
+	position: relative;
+}
+.floor div {display: inline-block; margin: 0 1em;}
+.floor .number {
+	position: absolute;
+	left: 0.5em;
+	font-weight: bold;
+}
+
+.jumpTo {
+	cursor: pointer;
+}
+
+.floor1.even {background: var(--color_path_1);}
+.floor2.even {background: var(--color_path_2);}
+.floor3.even {background: var(--color_path_3);}
+.floor4.even {background: var(--color_path_4);}
 
 .sheet {
 	width: 100%;
@@ -107,6 +146,18 @@ h1, h2 {
 .upgrade {
 	background: radial-gradient(farthest-side at center, var(--color_andromalius), var(--color_neutral_8));
 }
+
+#tooltip {
+	background-color: var(--color_path_3);
+	position: fixed;
+}
+#tooltip .sprite_bg {
+	background: radial-gradient(farthest-side at center, var(--color_neutral_10), var(--color_path_3));
+}
+#tooltip .upgrade {
+	background: radial-gradient(farthest-side at center, var(--color_neutral_10), var(--color_path_3));
+}
+
 .name {grid-area: name; line-height: 1rem;}
 .cost, .title {grid-area: title; font-style: italic; font-size: 0.75rem; line-height: 1.125rem;}
 .tag, .reach {grid-area: tag; text-transform: uppercase; font-size: 0.75rem; line-height: 1.125rem;}
