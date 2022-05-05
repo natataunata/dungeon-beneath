@@ -215,7 +215,7 @@ for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
 			create('span', {className: 'sprite_bg s'+(data.unit2[i][9]?24:16)}, createSVG(data.unit2[i][9]?24:16, data.unit2[i][8])),
 			create('span', {className: 'stats'},
 				create('span', {className: 'atk', textContent: data.dict.reach[data.unit2[i][6]] == '-'?'-':data.unit2[i][3]}),
-				create('span', {className: 'hp', textContent: data.unit2[i][4]}),
+				create('span', {className: 'hp', textContent: data.unit2[i][4].join?data.unit2[i][4][0]:data.unit2[i][4]}),
 				create('span', {className: 'spd', textContent: data.unit2[i][5]})
 			),
 			create('span', {className: 'name', textContent: data.unit2[i][2]}),
@@ -328,6 +328,49 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	upgradeNode.appendChild(thisNode);
 }
 
+//Pathing
+var pathNode = document.getElementById('ul_path');
+var currentRoom = 0;
+for(var i = 0, iMax = data.path.length; i < iMax; i++) {
+	var thisFloor = Math.floor(currentRoom / 13) +1;
+	var thisRoom = currentRoom - (thisFloor-1)*13 +1;
+	currentRoom++;
+	var thisNode = create('li', {className: 'floor floor'+thisFloor+(thisRoom%2?' even':' odd')});
+	thisNode.appendChild(create('span', {className: 'number',textContent: thisFloor + '/' + thisRoom}));
+	for(var j = 0, jMax = data.path[i].length; j < jMax; j++) {
+		//console.log('Floor ' + i + '/' + iMax + ' ' +(data.path[i][j].dsc?data.path[i][j].dsc:'nodesc'));
+		var thisGroup = create('div', {title: data.path[i][j].dsc?data.path[i][j].dsc:''});
+		if(data.path[i][j].lnk && !data.path[i][j].img) {
+			data.path[i][j].img = data.menu[data.path[i][j].lnk.split('#').shift()];
+		}
+		if(data.path[i][j].img == 0 || data.path[i][j].img) {
+			thisGroup.appendChild(createSVG(24, data.path[i][j].img));
+		} else if(data.path[i][j].empty) {
+			
+		} else if(data.path[i][j].bossPool == 0 || data.path[i][j].bossPool) {
+			thisGroup.appendChild(createSVG(24, data.menu.path));
+			for(var k = 0, kMax = data.bossPool[data.path[i][j].bossPool].length; k < kMax; k++) {
+				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k]},
+					create(' '),
+					createSVG(24, data.unit2[data.bossPool[data.path[i][j].bossPool][k]][8])
+				));
+			}
+			if(data.path[i][j].choice) {
+				thisGroup.appendChild(create(' '));
+				thisGroup.appendChild(createSVG(24, data.menu.path));
+			}
+		} else if(data.path[i][j].enemy) {
+			thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.path[i][j].enemy},
+				createSVG(24, data.unit2[data.path[i][j].enemy][8])
+			));
+		} else {
+			console.log(JSON.stringify(data.path[i][j]));
+		}
+		thisNode.appendChild(thisGroup);
+	}
+	pathNode.appendChild(thisNode);
+	//this.node.appendChild();
+}
 
 /*	TOOLTIP FUNCTION
 	If functionality is to be added, better tooltip might be needed
@@ -335,27 +378,47 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 */
 
 var tooltipStatus = 0;
+var tooltip = create('li', {id: 'tooltip', className: 'sheet'});
+document.body.appendChild(tooltip);
+
 document.getElementById('body').onmouseover = function(e){
 	var node = e.target;
 	while(!node.getAttribute('tooltip') && node.id != 'body') {
 		node = node.parentNode;
 	}
-	var tooltipNode = document.getElementById('tooltip');
 	if(node.id != 'body' && node.getAttribute('tooltip') && node.getAttribute('tooltip') != tooltipStatus) {
-		if(tooltipNode) tooltipNode.parentNode.removeChild(tooltipNode);
+		//if(tooltipNode) tooltipNode.parentNode.removeChild(tooltipNode);
 		tooltipStatus = node.getAttribute('tooltip');
-		while(node.nodeName.toUpperCase() != 'LI') {
-			node = node.parentNode;
-		}
-		node.parentNode.insertBefore(
-			create('li', {id: 'tooltip', className: document.getElementById(tooltipStatus).className, innerHTML: document.getElementById(tooltipStatus).innerHTML}),
-			node.nextSibling
-		);
+		tooltip.className = document.getElementById(tooltipStatus).className;
+		tooltip.innerHTML= document.getElementById(tooltipStatus).innerHTML;
+		tooltip.style.display = 'inline-grid';
 	} else if(tooltipStatus && node.getAttribute('tooltip') != tooltipStatus) {
-		tooltipNode.parentNode.removeChild(tooltipNode);
+		tooltip.className = '';
+		tooltip.innerHTML = '';
+		tooltip.style.display = 'none';
 		tooltipStatus = 0;
 	}
 };
+
+document.addEventListener('mousemove', fn, false);
+function fn(e) {
+	if(tooltipStatus) {
+		if(e.clientX > window.screen.width/2) {
+			tooltip.style.right = (window.screen.width - e.clientX) + 'px';
+			tooltip.style.left = 'auto';
+		} else {
+			tooltip.style.right = 'auto';
+			tooltip.style.left = e.clientX + 'px';
+		}
+		if(e.clientY > window.screen.height/2) {
+			tooltip.style.top = 'auto';
+			tooltip.style.bottom = (window.screen.height - e.clientY) + 'px';
+		} else {
+			tooltip.style.bottom = 'auto';
+			tooltip.style.top = e.clientY + 'px';
+		}
+	}
+}
 
 /*	HELPER FUNCTIONS
 */
@@ -456,6 +519,18 @@ function getTooltip(tooltip) {
 	});
 }
 
+var filter_map = {
+	//Unit filters
+	floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
+	keyword: function(pointer, testValue) {
+		var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
+		return filter_regexp.test(data.unit[pointer][7]);
+	},
+	race: function(pointer, testValue) {return data.unit[pointer][0] == testValue;},
+	job: function(pointer, testValue) {return data.unit[pointer][1] == testValue;},
+	//Item filter
+	tag: function(pointer, testValue) {return data.item[pointer][1] == testValue;}
+};
 function filter(e) {
 	var filter_key = this.getAttribute('for'),
 		inputNode = document.getElementById(filter_key);
@@ -471,54 +546,26 @@ function filter(e) {
 	}
 	//get all nodes, but unclear about the current one.
 	var allNode = document.querySelectorAll('input[id^="'+filter_type+'"]:checked');
-	if(filter_type == 'unit') {
-		var filter_map = {
-			floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
-			keyword: function(pointer, testValue) {
-				var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
-				return filter_regexp.test(data.unit[pointer][7]);
-			},
-			race: function(pointer, testValue) {return data.unit[pointer][0] == testValue;},
-			job: function(pointer, testValue) {return data.unit[pointer][1] == testValue;}
-		};
-		for(var i = 1, iMax = data.unit.length; i < iMax; i++) {
-			var include = true;
-			//first, perhaps do the current node
-			if(inputNode.checked == false) {
-				var filterTest = filter_key.split('_');
-				include = filter_map[filterTest[1]](i, filterTest[2]);
-			}
-			for(var j = 0, jMax = allNode.length; j < jMax; j++) {
-				if(allNode[j].id != filter_key) {
-					var filterTest = allNode[j].id.split('_');
-					include = include && filter_map[filterTest[1]](i, filterTest[2]);
-					if(!include) {
-						break;
-					}
+
+	for(var i = 1, iMax = data[filter_type].length; i < iMax; i++) {
+		var include = true;
+		if(inputNode.checked == false) { //check current one
+			var filterTest = filter_key.split('_');
+			include = filter_map[filter_type=='unit'?filterTest[1]:'tag'](i, filterTest[2]);
+		}
+		for(var j = 0, jMax = allNode.length; j < jMax; j++) { //check all but current one
+			if(allNode[j].id != filter_key) {
+				var filterTest = allNode[j].id.split('_');
+				include = include && filter_map[filterTest[1]](i, filterTest[2]);
+				if(!include) {
+					break;
 				}
 			}
-			if(!include) {
-				document.getElementById('unit_'+(i)).setAttribute('hidden', true);
-			} else {
-				document.getElementById('unit_'+(i)).removeAttribute('hidden');
-			}
 		}
-	} else {
-		var filter_map = {
-			tag: function(pointer, testValue) {return data.item[pointer][1] == testValue;}
-		};
-		for(var i = 1, iMax = data.item.length; i < iMax; i++) {
-			var include = true;
-			//first, perhaps do the current node
-			if(inputNode.checked == false) {
-				var filterTest = filter_key.split('_');
-				include = filter_map['tag'](i, filterTest[2]);
-			}
-			if(!include) {
-				document.getElementById('item_'+(i)).setAttribute('hidden', true);
-			} else {
-				document.getElementById('item_'+(i)).removeAttribute('hidden');
-			}
+		if(!include) {
+			document.getElementById(filter_type+'_'+i).setAttribute('hidden', true);
+		} else {
+			document.getElementById(filter_type+'_'+i).removeAttribute('hidden');
 		}
 	}
 }
