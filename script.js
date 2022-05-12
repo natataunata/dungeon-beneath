@@ -405,19 +405,15 @@ document.getElementById('body').onmouseover = function(e){
 document.addEventListener('mousemove', fn, false);
 function fn(e) {
 	if(tooltipStatus) {
-		if(e.clientX > window.screen.width/2) {
-			tooltip.style.right = (window.screen.width - e.clientX) + 'px';
-			tooltip.style.left = 'auto';
+		if(e.clientX < window.screen.width/2) {
+			tooltip.style.left = Math.max(0,Math.min(e.clientX, window.screen.width - tooltip.clientWidth)) + 'px';
 		} else {
-			tooltip.style.right = 'auto';
-			tooltip.style.left = e.clientX + 'px';
+			tooltip.style.left = Math.max(0,Math.min(e.clientX - tooltip.clientWidth, window.screen.width - tooltip.clientWidth)) + 'px';
 		}
-		if(e.clientY > window.screen.height/2) {
-			tooltip.style.top = 'auto';
-			tooltip.style.bottom = (window.screen.height - e.clientY) + 'px';
+		if(e.clientY < window.screen.height/2) {
+			tooltip.style.top = (e.clientY+10) + 'px';
 		} else {
-			tooltip.style.bottom = 'auto';
-			tooltip.style.top = e.clientY + 'px';
+			tooltip.style.top = (e.clientY - tooltip.clientHeight -10) + 'px';
 		}
 	}
 }
