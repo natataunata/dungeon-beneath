@@ -63,9 +63,24 @@ for(var linkName in data.menu) {
 			create('span', {textContent: linkName})
 	));
 }
+var difficulty = create('div', {className: 'difficulty'}),
+	difficultyName = ['Normal Game', 'New Game+1', 'New Game+2', 'New Game+3', 'New Game+4', 'New Game+5', 'Legend'];
+for(var i = 0, iMax = 7; i < iMax; i++) {
+	difficulty.appendChild(create('input', {type: 'radio', name: 'difficulty', id: 'difficulty_'+i}));
+	var toggleNode = create('div', {className: 'toggle'});
+	if(i > 0) {
+		toggleNode.appendChild(create('label', {className: 'previous', for: 'difficulty_'+(i-1), onclick: setDifficulty}));
+	}
+	toggleNode.appendChild(create('span', {textContent: difficultyName[i]}));
+	if(i < iMax-1) {
+		toggleNode.appendChild(create('label', {className: 'next', for: 'difficulty_'+(i+1), onclick: setDifficulty}));
+	}
+	difficulty.appendChild(toggleNode);
+}
+document.getElementById('header').appendChild(difficulty);
 document.getElementById('header').appendChild(nav);
-
 document.getElementById('toggle_path').click(); //Let's show some content at least.
+document.getElementById('difficulty_0').click();
 
 
 
@@ -162,7 +177,7 @@ for(var i = 1, iMax = data.item.length; i < iMax; i++) {
 		create('li', {className: 'sheet item', id: 'item_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.item[i][6])),
 			create('span', {className: 'name', textContent: data.item[i][0]}),
-			create('span', {className: data.item[i][4] == -1?'':'cost', textContent: data.item[i][4] == -1?'':data.item[i][4]}),
+			create('span', {className: data.item[i][4] < 1?'':'cost', textContent: data.item[i][4] < 1?'':data.item[i][4]}),
 			create('span', {className:'tag', textContent: data.dict.tag[data.item[i][1]]}),
 			create('span', {className: 'sprite_bg s16 upgrade', tooltip: data.item[i][5]?'item_'+data.item[i][5]:''}, data.item[i][5]?createSVG(16, data.item[data.item[i][5]][6]):create()),
 			create('span', {className: 'desc', innerHTML: elaborateTooltip.join('') + getTooltip(data.item[i][3])})
@@ -227,6 +242,7 @@ for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
 		)
 	);
 }
+
 
 /* ### Upgrade cheap calculation.
 */
@@ -564,6 +580,96 @@ function filter(e) {
 			document.getElementById(filter_type+'_'+i).setAttribute('hidden', true);
 		} else {
 			document.getElementById(filter_type+'_'+i).removeAttribute('hidden');
+		}
+	}
+}
+
+/* DIFFICULTY MODIFIER
+	Changes price and health of units, item and monsters according to difficulty.
+*/
+function setDifficulty() {
+	var difficulty = parseInt(this.getAttribute('for').split('_').pop());
+	for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
+		if(!data.unit2[i][4].join || data.unit2[i][4].length != 2 || data.unit2[i][4][1] != 0) { //otherwise no scaling.
+			var node = document.querySelector('#monster_'+i +' .hp'),
+				defaultScaling = 2,
+				health = data.unit2[i][4].join ? data.unit2[i][4][0] : data.unit2[i][4],
+				pointerUntil = 1,
+				scaling = 0
+				specialScaling = false;
+			
+			if((data.unit2[i][0] == 15 || data.unit2[i][0] == 13) && health > 99) { //Old Gods or Keeper
+				pointerUntil = difficulty +1;
+				specialScaling = true;
+			} else {
+				if(difficulty > 0) {
+					pointerUntil += 1;
+				}
+				if(difficulty > 3) {
+					pointerUntil += 1;
+				}
+				if(difficulty > 5) {
+					pointerUntil += 1;
+				}
+			}
+			
+			if(data.unit2[i][4].join) {
+				for(var j = 1, jMax = pointerUntil; j < jMax; j++) {
+					if(data.unit2[i][4].length > j) {
+						scaling += data.unit2[i][4][j];
+					} else if(j < 3) { //if no legend scaling, no special scaling
+						scaling += data.unit2[i][4][data.unit2[i][4].length -1];
+					}
+					
+				}
+			} else { //default behavior
+				if(specialScaling) {
+					scaling = defaultScaling * Math.max(difficulty, 5);
+				} else {
+					if(difficulty > 0) {
+						scaling = defaultScaling;
+					}
+					if(difficulty > 3) {
+						scaling *= 2;
+					}
+				}
+			}
+			node.textContent = Math.floor(health * (1 + scaling/10));
+		}
+		
+	}
+	
+	
+	for(var i = 1, iMax = data.item.length; i < iMax; i++) {
+		var node = document.querySelector('#item_'+i +' .cost'),
+			cost = data.item[i][4];
+			defaultScaling = 2;
+		if(node) {
+			if(difficulty < 3) {
+				defaultScaling = 0;
+			}
+			node.textContent = Math.floor(cost * (1 + defaultScaling/10));
+		}
+	}
+	
+	for(var i = 1, iMax = data.unit.length; i < iMax; i++) {
+		var node = document.querySelector('#unit_'+i +' .hp'),
+			defaultScaling = 2,
+			health;
+
+		if(node) {
+			if(difficulty < 2) {
+				defaultScaling = 0;
+			}
+			if(data.unit[i][4].join) {
+				health = [];
+				for(var j = 0, jMax = data.unit[i][4].length; j < jMax; j++) {
+					health[j] = Math.floor(data.unit[i][4][j] * (1 - defaultScaling/10));
+				}
+			} else {
+				health = Math.floor(data.unit[i][4] * (1 - defaultScaling/10));
+			}
+			node.textContent = health;
 		}
 	}
 }
