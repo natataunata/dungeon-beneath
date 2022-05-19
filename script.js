@@ -79,9 +79,6 @@ for(var i = 0, iMax = 7; i < iMax; i++) {
 }
 document.getElementById('header').appendChild(difficulty);
 document.getElementById('header').appendChild(nav);
-document.getElementById('toggle_path').click(); //Let's show some content at least.
-document.getElementById('difficulty_0').click();
-
 
 
 /* ### Add filter buttons to the Unit and Item divs.
@@ -101,6 +98,19 @@ keywords = [
 	['counter', '{kw-counter}'],
 ];
 
+//Path Filter
+var filterNode = create('div', {className: 'filter', textContent: 'Filter: '}, 
+	create('input', {className: 'filter_floor', type: 'checkbox', name: 'path_filter', id: 'path_path_0'}),
+	create('label', {textContent: 'All', for: 'path_path_0', onclick: filter})
+);
+for(var i = 1, iMax = 5; i < iMax; i++) {
+	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'path_filter', id: 'path_path_'+i}));
+	filterNode.appendChild(create('label', {textContent: 'Floor '+i, for: 'path_path_'+i, onclick: filter}));
+}
+document.getElementById('ul_path').appendChild(
+	filterNode
+);
+//Unit Filter
 var filterNode = create('div', {className: 'filter', textContent: 'Filter: '});
 for(var i = 1, iMax = 3; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'unit_floor_filter', id: 'unit_floor_'+i}));
@@ -110,7 +120,7 @@ for(var i = 0, iMax = keywords.length; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_keyword', type: 'checkbox', name: 'unit_keyword_filter', id: 'unit_keyword_'+i}));
 	filterNode.appendChild(create('label', {textContent: keywords[i][0], for: 'unit_keyword_'+i, onclick: filter}));
 }
-for(var i = 1, iMax = 6; i < iMax; i++) {
+for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'unit_race_'+i, onclick: filter}));
 }
@@ -121,11 +131,11 @@ for(var i = 17, iMax = 20; i < iMax; i++) {
 document.getElementById('ul_unit').appendChild(
 	filterNode
 );
-
+//Item Filter
 var filterNode = create('div', {className: 'filter', textContent: 'Filter: '});
 filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+0}));
 filterNode.appendChild(create('label', {textContent: 'any', for: 'item_filter_0', onclick: filter}));
-for(var i = 1, iMax = 6; i < iMax; i++) {
+for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
 }
@@ -349,14 +359,13 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 //Pathing
 var pathNode = document.getElementById('ul_path');
 var currentRoom = 0;
-for(var i = 0, iMax = data.path.length; i < iMax; i++) {
+for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 	var thisFloor = Math.floor(currentRoom / 13) +1;
 	var thisRoom = currentRoom - (thisFloor-1)*13 +1;
 	currentRoom++;
-	var thisNode = create('li', {className: 'floor floor'+thisFloor+(thisRoom%2?' even':' odd')});
+	var thisNode = create('li', {id: 'path_'+i, className: 'floor floor'+thisFloor+(thisRoom%2?' even':' odd')});
 	thisNode.appendChild(create('span', {className: 'number',textContent: thisFloor + '/' + thisRoom}));
 	for(var j = 0, jMax = data.path[i].length; j < jMax; j++) {
-		//console.log('Floor ' + i + '/' + iMax + ' ' +(data.path[i][j].dsc?data.path[i][j].dsc:'nodesc'));
 		var thisGroup = create('div', {title: data.path[i][j].dsc?data.path[i][j].dsc:''});
 		if(data.path[i][j].lnk && !data.path[i][j].img) {
 			data.path[i][j].img = data.menu[data.path[i][j].lnk.split('#').shift()];
@@ -368,8 +377,8 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 		} else if(data.path[i][j].bossPool == 0 || data.path[i][j].bossPool) {
 			thisGroup.appendChild(createSVG(24, data.menu.path));
 			for(var k = 0, kMax = data.bossPool[data.path[i][j].bossPool].length; k < kMax; k++) {
-				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k]},
-					create(' '),
+				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k], onclick: goToTooltip, className: data.unit2[data.bossPool[data.path[i][j].bossPool][k]][10]?'hard':''},
+					//create(' '),
 					createSVG(24, data.unit2[data.bossPool[data.path[i][j].bossPool][k]][8])
 				));
 			}
@@ -378,7 +387,7 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 				thisGroup.appendChild(createSVG(24, data.menu.path));
 			}
 		} else if(data.path[i][j].enemy) {
-			thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.path[i][j].enemy},
+			thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.path[i][j].enemy, onclick: goToTooltip},
 				createSVG(24, data.unit2[data.path[i][j].enemy][8])
 			));
 		} else {
@@ -387,7 +396,11 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 		thisNode.appendChild(thisGroup);
 	}
 	pathNode.appendChild(thisNode);
-	//this.node.appendChild();
+}
+
+function goToTooltip() {
+	document.querySelector('label[for="toggle_'+this.getAttribute('tooltip').split('_').shift()+'"]').click();
+	window.location.hash = this.getAttribute('tooltip');
 }
 
 /*	TOOLTIP FUNCTION
@@ -534,6 +547,8 @@ function getTooltip(tooltip) {
 }
 
 var filter_map = {
+	//Path filter
+	path: function(pointer, testValue) {return (parseInt(testValue) ? Math.floor((pointer-1)/13) == parseInt(testValue)-1 : true);},
 	//Unit filters
 	floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
 	keyword: function(pointer, testValue) {
@@ -565,7 +580,7 @@ function filter(e) {
 		var include = true;
 		if(inputNode.checked == false) { //check current one
 			var filterTest = filter_key.split('_');
-			include = filter_map[filter_type=='unit'?filterTest[1]:'tag'](i, filterTest[2]);
+			include = filter_map[filter_type=='item'?'tag':filterTest[1]](i, filterTest[2]);
 		}
 		for(var j = 0, jMax = allNode.length; j < jMax; j++) { //check all but current one
 			if(allNode[j].id != filter_key) {
@@ -589,6 +604,9 @@ function filter(e) {
 */
 function setDifficulty() {
 	var difficulty = parseInt(this.getAttribute('for').split('_').pop());
+	
+	document.getElementById('ul_path').className = difficulty > 0 ? 'hard':'';
+	
 	for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
 		if(!data.unit2[i][4].join || data.unit2[i][4].length != 2 || data.unit2[i][4][1] != 0) { //otherwise no scaling.
 			var node = document.querySelector('#monster_'+i +' .hp'),
@@ -673,3 +691,9 @@ function setDifficulty() {
 		}
 	}
 }
+
+
+
+document.getElementById('toggle_path').click(); //Let's show some content at least.
+document.getElementById('difficulty_0').click();
+document.querySelector('label[for="path_path_1"]').click();
