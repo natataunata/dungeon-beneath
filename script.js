@@ -96,6 +96,7 @@ keywords = [
 	['poison', '{kw-poison}'],
 	['kill', 'summon an enemy'],
 	['counter', '{kw-counter}'],
+	['soulcast','{kw-channel}','max soul']
 ];
 
 //Path Filter
@@ -124,6 +125,8 @@ for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'unit_race_'+i, onclick: filter}));
 }
+	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+9}));
+	filterNode.appendChild(create('label', {textContent: data.dict.tag[9], for: 'unit_race_'+9, onclick: filter}));
 for(var i = 17, iMax = 20; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'unit_job_filter', id: 'unit_job_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'unit_job_'+i, onclick: filter}));
@@ -139,6 +142,8 @@ for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
 }
+	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+9}));
+	filterNode.appendChild(create('label', {textContent: data.dict.tag[9], for: 'item_filter_'+9, onclick: filter}));
 for(var i = 16, iMax = 20; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
 	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
@@ -343,15 +348,20 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	var thisNode = create('p', {});
 	for(var j = 0, jMax = outputUpgrade[i].length; j < jMax; j++) {
 		for(var k = j==0?0:1, kMax = outputUpgrade[i][j].item.length; k < kMax; k++) {
-			thisNode.appendChild(createSVG(16, data.item[outputUpgrade[i][j].item[k]][6]));
+			thisNode.appendChild(create('span', {className: 'sprite_bg s16', tooltip: 'item_'+outputUpgrade[i][j].item[k]}, createSVG(16, data.item[outputUpgrade[i][j].item[k]][6])));
 		}
-		if(outputUpgrade[i][j].reverse) {
-			thisNode.appendChild(createSVG(16, data.item[outputUpgrade[i][j].reverse][6]));
+		if(outputUpgrade[i][j].reverse && outputUpgrade[i][j].item.length == 0) {
+			thisNode.appendChild(create('span', {className: 'sprite_bg s16', tooltip: 'item_'+outputUpgrade[i][j].reverse}, createSVG(16, data.item[outputUpgrade[i][j].reverse][6])));
 			thisNode.appendChild(create(' <=> '));
 		} else {
 			thisNode.appendChild(create(' => '));
 		}
-		thisNode.appendChild(createSVG(16, data.item[outputUpgrade[i][j].into][6]));
+		thisNode.appendChild(create('span', {className: 'sprite_bg s16', tooltip: 'item_'+outputUpgrade[i][j].into}, createSVG(16, data.item[outputUpgrade[i][j].into][6])));
+		
+		if(outputUpgrade[i][j].reverse && outputUpgrade[i][j].item.length > 0) {
+			thisNode.appendChild(create(' <=> '));
+			thisNode.appendChild(create('span', {className: 'sprite_bg s16', tooltip: 'item_'+outputUpgrade[i][j].reverse}, createSVG(16, data.item[outputUpgrade[i][j].reverse][6])));
+		}
 	}
 	upgradeNode.appendChild(thisNode);
 }
@@ -530,6 +540,9 @@ function getTooltip(tooltip) {
 			break;
 			case '{kw-affliction}':
 				return '<span class="trigger" title="Afflicted characters cannot gain Health Armor or Power. At the end of a character\'s turn one stack of Affliction is removed.">Affliction</span>';
+			break;
+			case '{kw-channel}':
+				return '<span class="trigger" title="Spend X souls to trigger an ability in between rounds.">Soulcast</span>';
 			break;
 			default: //summon, hopefully
 				x = x.split('/');
