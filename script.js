@@ -2,6 +2,7 @@
 	Building the big fat SVG file.
 	! TODO: compile it in less nodes (no pixel by pixel, but bigger rectangles and lines, overwritten by following draws anyway).
 */
+
 [16,24].forEach(function(value) {
 	var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute('viewBox', '0 0 '+value+' '+value);
