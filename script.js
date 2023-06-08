@@ -2,7 +2,6 @@
 	Building the big fat SVG file.
 	! TODO: compile it in less nodes (no pixel by pixel, but bigger rectangles and lines, overwritten by following draws anyway).
 */
-
 [16,24].forEach(function(value) {
 	var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute('viewBox', '0 0 '+value+' '+value);
@@ -40,13 +39,6 @@
 	document.getElementById('empty').appendChild(svg);
 });
 
-/* ###
-	Fixing the Data file.
-*/
-
-data.dict.reach[3] = '';			//We don't need the "Both", perhaps remove it in the data compilation step.
-
-
 /* ### Building the menu
 */
 
@@ -60,19 +52,20 @@ for(var linkName in data.menu) {
 	);
 	nav.appendChild(
 		create('label', {className: 'menuItem', for: 'toggle_'+linkName},
-			createSVG(24, data.menu[linkName]),
-			create('span', {textContent: linkName})
+			createSVG(24, data.menu[linkName][0]),
+			create('span', {lang: data.menu[linkName][1]})
 	));
 }
-var difficulty = create('div', {className: 'difficulty'}),
-	difficultyName = ['Normal Game', 'New Game+1', 'New Game+2', 'New Game+3', 'New Game+4', 'New Game+5', 'Legend'];
+
+
+var difficulty = create('div', {className: 'difficulty'});
 for(var i = 0, iMax = 7; i < iMax; i++) {
 	difficulty.appendChild(create('input', {type: 'radio', name: 'difficulty', id: 'difficulty_'+i}));
 	var toggleNode = create('div', {className: 'toggle'});
 	if(i > 0) {
 		toggleNode.appendChild(create('label', {className: 'previous', for: 'difficulty_'+(i-1), onclick: setDifficulty}));
 	}
-	toggleNode.appendChild(create('span', {textContent: difficultyName[i]}));
+	toggleNode.appendChild(create('span', {lang: data.difficulty[i]}));
 	if(i < iMax-1) {
 		toggleNode.appendChild(create('label', {className: 'next', for: 'difficulty_'+(i+1), onclick: setDifficulty}));
 	}
@@ -101,53 +94,58 @@ keywords = [
 ];
 
 //Path Filter
-var filterNode = create('div', {className: 'filter', textContent: 'Filter: '}, 
-	create('input', {className: 'filter_floor', type: 'checkbox', name: 'path_filter', id: 'path_path_0'}),
-	create('label', {textContent: 'All', for: 'path_path_0', onclick: filter})
-);
-for(var i = 1, iMax = 5; i < iMax; i++) {
+var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
+	
+for(var i = 0, iMax = 5; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'path_filter', id: 'path_path_'+i}));
-	filterNode.appendChild(create('label', {textContent: 'Floor '+i, for: 'path_path_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.area[i], for: 'path_path_'+i, onclick: filter}));
 }
 document.getElementById('ul_path').appendChild(
 	filterNode
 );
 //Unit Filter
-var filterNode = create('div', {className: 'filter', textContent: 'Filter: '});
+var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
 for(var i = 1, iMax = 3; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'unit_floor_filter', id: 'unit_floor_'+i}));
-	filterNode.appendChild(create('label', {textContent: 'Floor '+i, for: 'unit_floor_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.area[i], for: 'unit_floor_'+i, onclick: filter}));
 }
+
 for(var i = 0, iMax = keywords.length; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_keyword', type: 'checkbox', name: 'unit_keyword_filter', id: 'unit_keyword_'+i}));
-	filterNode.appendChild(create('label', {textContent: keywords[i][0], for: 'unit_keyword_'+i, onclick: filter}));
+	for(var j in data.dict.keyword) {
+		if(keywords[i][0] == data.L[data.dict.keyword[j][0]].toLowerCase()) {
+			filterNode.appendChild(create('label', {lang: data.dict.keyword[j][0], langt: data.dict.keyword[j][1], for: 'unit_keyword_'+i, onclick: filter}));
+			break;
+		}
+	}
+	
 }
 for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+i}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'unit_race_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'unit_race_'+i, onclick: filter}));
 }
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+9}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[9], for: 'unit_race_'+9, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[9], for: 'unit_race_'+9, onclick: filter}));
 for(var i = 17, iMax = 20; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'unit_job_filter', id: 'unit_job_'+i}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'unit_job_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'unit_job_'+i, onclick: filter}));
 }
 document.getElementById('ul_unit').appendChild(
 	filterNode
 );
 //Item Filter
-var filterNode = create('div', {className: 'filter', textContent: 'Filter: '});
+var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
 filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+0}));
-filterNode.appendChild(create('label', {textContent: 'any', for: 'item_filter_0', onclick: filter}));
+filterNode.appendChild(create('label', {textContent: '-', for: 'item_filter_0', onclick: filter}));
 for(var i = 1, iMax = 7; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
 }
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+9}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[9], for: 'item_filter_'+9, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[9], for: 'item_filter_'+9, onclick: filter}));
 for(var i = 16, iMax = 20; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
-	filterNode.appendChild(create('label', {textContent: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
+	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
 }
 document.getElementById('ul_item').appendChild(
 	filterNode
@@ -163,15 +161,19 @@ for(var i = 1, iMax = data.hero.length; i < iMax; i++) {
 	heroNode.appendChild(
 		create('li', {className: 'sheet hero', id: 'hero_'+i},
 			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.hero[i][7])),
-			create('span', {className: 'name', textContent: data.hero[i][1]}),
-			create('span', {className: 'title', textContent: data.hero[i][2]}),
-			create('span', {className: 'tag',textContent: data.dict.tag[data.hero[i][0]] + ' Hero'}),
+			create('span', {className: 'name', lang: data.hero[i][1]}),
+			create('span', {className: 'title', lang: data.hero[i][2]}),
+			create('span', {className: 'tag'},
+				create('span', {lang: data.dict.tag[data.hero[i][0]]}),
+				create('span', {textContent: ' '}),
+				create('span', {lang: data.dict.tag[16]})
+			),
 			create('span', {className: 'stats'},
 				create('span', {className: 'atk', textContent: data.hero[i][4]}),
 				create('span', {className: 'hp', textContent: data.hero[i][5]}),
 				create('span', {className: 'spd', textContent: data.hero[i][6]})
 			),
-			create('span', {className: 'desc', innerHTML: getTooltip(data.hero[i][3])})
+			create('span', {className: 'desc', lang: data.hero[i][3]})
 		)
 	);
 }
@@ -183,20 +185,23 @@ var itemNode = document.getElementById('ul_item');
 for(var i = 1, iMax = data.item.length; i < iMax; i++) {
 	var elaborateTooltip = [];
 	if(data.item[i][2].join) {
+		
 		['Attack','Health','Speed'].forEach(function(value,key,array) {
 			if(data.item[i][2][key]) {
-				elaborateTooltip.push((data.item[i][2][key]>0?'+':'')+data.item[i][2][key]+' '+value+'. ');
+				elaborateTooltip.push((data.item[i][2][key]>0?'+':'')+data.item[i][2][key]+' <span lang="'+data.dict.bonus[key]+'"></span>. ');
 			}
 		});
 	}
 	itemNode.appendChild(
 		create('li', {className: 'sheet item', id: 'item_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.item[i][6])),
-			create('span', {className: 'name', textContent: data.item[i][0]}),
+			create('span', {className: 'name', lang: data.item[i][0]}),
 			create('span', {className: data.item[i][4] < 1?'':'cost', textContent: data.item[i][4] < 1?'':data.item[i][4]}),
-			create('span', {className:'tag', textContent: data.dict.tag[data.item[i][1]]}),
+			create('span', {className:'tag', lang: data.dict.tag[data.item[i][1]]}),
 			create('span', {className: 'sprite_bg s16 upgrade', tooltip: data.item[i][5]?'item_'+data.item[i][5]:''}, data.item[i][5]?createSVG(16, data.item[data.item[i][5]][6]):create()),
-			create('span', {className: 'desc', innerHTML: elaborateTooltip.join('') + getTooltip(data.item[i][3])})
+			create('span', {className: 'desc', innerHTML: elaborateTooltip.join('')},
+				create('span', {className: 'desc', lang: data.item[i][3]})
+			)
 		)
 	);
 }
@@ -211,8 +216,8 @@ for(var i = 0, iMax = data.artifact.length; i < iMax; i++) {
 	artifactNode.appendChild(
 		create('li', {className: 'sheet artifact', id: 'artifact_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.artifact[i][2])),
-			create('span', {className: 'name', textContent: data.artifact[i][0]}),
-			create('span', {className: 'desc', innerHTML: getTooltip(data.artifact[i][1])})
+			create('span', {className: 'name', lang: data.artifact[i][0]}),
+			create('span', {className: 'desc', lang: data.artifact[i][1]})
 		)
 	);
 }
@@ -230,10 +235,14 @@ for(var i = 1, iMax = data.unit.length; i < iMax; i++) {
 				create('span', {className: 'hp', textContent: data.unit[i][4]}),
 				create('span', {className: 'spd', textContent: data.unit[i][5]})
 			),
-			create('span', {className: 'name', textContent: data.unit[i][2]}),
-			create('span', {className: 'tag', textContent: data.dict.tag[data.unit[i][0]] + ' '+data.dict.tag[data.unit[i][1]]}),
-			create('span', {className: 'reach', textContent: data.dict.reach[data.unit[i][6]]}),
-			create('span', {className: 'desc', innerHTML: getTooltip(data.unit[i][7])})
+			create('span', {className: 'name', lang: data.unit[i][2]}),
+			create('span', {className: 'tag'},
+				create('span', {lang: data.dict.tag[data.unit[i][0]]}),
+				create('span', {textContent: ' '}),
+				create('span', {lang: data.dict.tag[data.unit[i][1]]})
+			),
+			create('span', {className: 'reach', lang: data.dict.reach[data.unit[i][6]]}),
+			create('span', {className: 'desc', lang: data.unit[i][7]})
 		)
 	);
 }
@@ -251,10 +260,14 @@ for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
 				create('span', {className: 'hp', textContent: data.unit2[i][4].join?data.unit2[i][4][0]:data.unit2[i][4]}),
 				create('span', {className: 'spd', textContent: data.unit2[i][5]})
 			),
-			create('span', {className: 'name', textContent: data.unit2[i][2]}),
-			create('span', {className: 'tag', textContent: data.dict.tag[data.unit2[i][0]] + ' '+data.dict.tag[data.unit2[i][1]]}),
-			create('span', {className: 'reach', textContent: data.dict.reach[data.unit2[i][6]]}),
-			create('span', {className: 'desc', innerHTML: getTooltip(data.unit2[i][7])})
+			create('span', {className: 'name', lang: data.unit2[i][2]}),
+			create('span', {className: 'tag'},
+				create('span', {lang: data.dict.tag[data.unit2[i][0]]}),
+				create('span', {textContent: ' '}),
+				create('span', {lang: data.dict.tag[data.unit2[i][1]]})
+			),
+			create('span', {className: 'reach', lang: data.dict.reach[data.unit2[i][6]]}),
+			create('span', {className: 'desc', lang: data.unit2[i][7]})
 		)
 	);
 }
@@ -377,9 +390,9 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 	var thisNode = create('li', {id: 'path_'+i, className: 'floor floor'+thisFloor+(thisRoom%2?' even':' odd')});
 	thisNode.appendChild(create('span', {className: 'number',textContent: thisFloor + '/' + thisRoom}));
 	for(var j = 0, jMax = data.path[i].length; j < jMax; j++) {
-		var thisGroup = create('div', {title: data.path[i][j].dsc?data.path[i][j].dsc:''});
+		var thisGroup = create('div', {langt: data.path[i][j].dsc?data.path[i][j].dsc:''});
 		if(data.path[i][j].lnk && !data.path[i][j].img) {
-			data.path[i][j].img = data.menu[data.path[i][j].lnk.split('#').shift()];
+			data.path[i][j].img = data.menu[data.path[i][j].lnk.split('#').shift()][0];
 		}
 		if(data.path[i][j].img == 0 || data.path[i][j].img) {
 			thisGroup.appendChild(createSVG(24, data.path[i][j].img));
@@ -473,7 +486,7 @@ function create() {
 			for (var b in B) {
 				if (b.indexOf("on") == 0) {
 					A.addEventListener ? A.addEventListener(b.substring(2), B[b], false) : A.attachEvent(b,B[b]);
-				} else if (",style,accesskey,id,name,src,href,for,value,tooltip".indexOf("," + b.toLowerCase()) != -1) {
+				} else if (",style,accesskey,id,name,src,href,for,value,tooltip,lang,langt".indexOf("," + b.toLowerCase()) != -1) {
 					A.setAttribute(b, B[b]);
 				} else {
 					A[b] = B[b];
@@ -499,67 +512,6 @@ function createSVG(size, id){
 	return svg2;
 }
 
-//Not really a tooltip, just replacing the ability description of units.
-function getTooltip(tooltip) {
-	return tooltip.replace(/\{kw\-[a-z:0-9/]+\}/gi, function (x) {
-		switch(x) {
-			case '{kw-endofround}':
-				return '<span class="trigger" title="Does something after all characters finish attacking, in order of speed. Ignores exhaustion.">Round End</span>';
-			break;
-			case '{kw-followup}':
-				return '<span class="trigger" title="Does something after the character\'s normal attack.">Follow Up</span>';
-			break;
-			case '{kw-startofbattle}':
-				return '<span class="trigger" title="Does something before the battle begins.">Battle Start</span>';
-			break;
-			case '{kw-counter}':
-				return '<span class="trigger" title="Does something when the character loses health and survives.">Counter</span>';
-			break;
-			case '{kw-otherunitdies}':
-				return '<span class="trigger" title="Does something when an enemy character dies.">Doom</span>';
-			break;
-			case '{kw-death}':
-				return '<span class="trigger" title="Does something after dying.">Death</span>';
-			break;
-			case '{kw-charge}':
-				return '<span class="trigger" title="The next attack deals more Damage.">Power</span>';
-			break;
-			case '{kw-shield}':
-				return '<span class="trigger" title="The next time this character would take damage it doesn\'t.">Shield</span>';
-			break;
-			case '{kw-healthisrecovered}':
-				return '<span class="trigger" title="Does something when an allied character\'s health increases.">Hope</span>';
-			break;
-			case '{kw-poison}':
-				return '<span class="trigger" title="Poisoned characters take 1 damage after their normal attack. Lasts until the end of this battle. Does not stack.">Poison</span>';
-			break;
-			case '{kw-weaken}':
-				return '<span class="trigger" title="The next time a cursed character takes damage it\'s doubled.">Curse</span>';
-			break;
-			case '{kw-scheme}':
-				return '<span class="trigger" title="Does something if the character does not attack.">Scheme</span>';
-			break;
-			case '{kw-affliction}':
-				return '<span class="trigger" title="Afflicted characters cannot gain Health Armor or Power. At the end of a character\'s turn one stack of Affliction is removed.">Affliction</span>';
-			break;
-			case '{kw-channel}':
-				return '<span class="trigger" title="Spend X souls to trigger an ability in between rounds.">Soulcast</span>';
-			break;
-			default: //summon, hopefully
-				x = x.split('/');
-				var returnTooltip = [];
-				for(var i = 0, iMax = x.length; i < iMax; i++) {
-					var summonID = x[i].match(/[0-9]+/).shift();
-					//var svgNode = createSVG(24, data.unit2[parseInt(summonID)][8]), node = create('div', {}, svgNode); // nifty but not equal to line height.
-					var innerNode = create('span', {className: 'summon', tooltip: 'monster_'+summonID ,textContent: data.unit2[parseInt(summonID)][2]}), node = create('div', {}, innerNode);
-					returnTooltip.push(node.innerHTML); 
-				}
-				return returnTooltip.join('/');
-			break;
-		}
-	});
-}
-
 var filter_map = {
 	//Path filter
 	path: function(pointer, testValue) {return (parseInt(testValue) ? Math.floor((pointer-1)/13) == parseInt(testValue)-1 : true);},
@@ -567,7 +519,7 @@ var filter_map = {
 	floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
 	keyword: function(pointer, testValue) {
 		var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
-		return filter_regexp.test(data.unit[pointer][7]);
+		return filter_regexp.test(data.L[data.unit[pointer][7]]);
 	},
 	race: function(pointer, testValue) {return data.unit[pointer][0] == testValue;},
 	job: function(pointer, testValue) {return data.unit[pointer][1] == testValue;},
@@ -706,8 +658,75 @@ function setDifficulty() {
 	}
 }
 
-
+function translate() {
+	var thisLang = userLang == 0 ? data.L : L;
+	var allNodes = document.querySelectorAll('*[lang]');
+	for(var i  = 0, iMax = allNodes.length; i < iMax; i++) {
+		if(thisLang[allNodes[i].getAttribute('lang')]) {
+			allNodes[i].innerHTML = thisLang[allNodes[i].getAttribute('lang')].replace(/\{kw\-([a-z:0-9/]+)\}/gi, function (wholeString, keyword) {
+				if(data.dict.keyword[keyword]) {
+					return '<span class="trigger" title="'+thisLang[data.dict.keyword[keyword][1]]+'">'+thisLang[data.dict.keyword[keyword][0]]+'</span>';
+				} else {
+					wholeString = wholeString.split('/');
+					var returnTooltip = [];
+					for(var i = 0, iMax = wholeString.length; i < iMax; i++) {
+						var summonID = wholeString[i].match(/[0-9]+/).shift();
+						//var svgNode = createSVG(24, data.unit2[parseInt(summonID)][8]), node = create('div', {}, svgNode); // nifty but not equal to line height.
+						var innerNode = create('span', {className: 'summon', tooltip: 'monster_'+summonID, textContent: thisLang[data.unit2[parseInt(summonID)][2]]}), node = create('div', {}, innerNode);
+						returnTooltip.push(node.innerHTML); 
+					}
+					return returnTooltip.join('/');
+				}
+			});
+			
+		}
+	}
+	
+	var allNodes = document.querySelectorAll('*[langt]');
+	for(var i  = 0, iMax = allNodes.length; i < iMax; i++) {
+		if(allNodes[i].getAttribute('langt') != '') {
+			allNodes[i].title = data.L[allNodes[i].getAttribute('langt')];
+		}
+	}
+}
 
 document.getElementById('toggle_path').click(); //Let's show some content at least.
 document.getElementById('difficulty_0').click();
 document.querySelector('label[for="path_path_1"]').click();
+
+function selectLang(e) {
+	var thisHash = document.location.search || 'en', thisUserLang = 0;
+	thisHash = thisHash.replace('?','');
+	for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
+		console.log(thisHash + ' ' + data.lang[i][1]);
+		if(thisHash == data.lang[i][1]) {
+			thisUserLang = i;
+			break;
+		}
+	}
+	if(thisUserLang != userLang) {
+		userLang = thisUserLang;
+		if(userLang == 0) {
+			translate();
+		} else {
+			var langNode = document.getElementById('langNode');
+			if(!langNode) {
+				langNode = create('script', {src: 'lang.'+data.lang[userLang][1]+'.js', onload: function() {
+					translate();
+				}});
+				document.body.appendChild(langNode);
+			} else {
+				langNode.src = 'lang.'+data.lang[userLang][1]+'.js';
+			}
+		}
+	}
+}
+
+var langSelectNode = create('div', {className: 'lang'});
+for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
+		langSelectNode.appendChild(create('a', {textContent: data.lang[i][0], href: '?'+data.lang[i][1]}));
+}
+document.getElementById('header').firstElementChild.appendChild(langSelectNode)
+
+var userLang = -1;
+selectLang();
