@@ -397,3 +397,12 @@ span.hard {
 .hard .hard {
 	display: inline-block;
 }
+
+.lang {
+	padding-bottom: 1em;
+}
+.lang a {
+	display: inline-block;
+	margin: 0 1em;
+	text-decoration: none;
+}
