@@ -698,7 +698,6 @@ function selectLang(e) {
 	var thisHash = document.location.search || 'en', thisUserLang = 0;
 	thisHash = thisHash.replace('?','');
 	for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
-		console.log(thisHash + ' ' + data.lang[i][1]);
 		if(thisHash == data.lang[i][1]) {
 			thisUserLang = i;
 			break;
