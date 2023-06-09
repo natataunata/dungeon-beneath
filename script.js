@@ -685,7 +685,13 @@ function translate() {
 	var allNodes = document.querySelectorAll('*[langt]');
 	for(var i  = 0, iMax = allNodes.length; i < iMax; i++) {
 		if(allNodes[i].getAttribute('langt') != '') {
-			allNodes[i].title = data.L[allNodes[i].getAttribute('langt')];
+			allNodes[i].title = data.L[allNodes[i].getAttribute('langt')].replace(/\{kw\-([a-z:0-9/]+)\}/gi, function (wholeString, keyword) {
+				if(data.dict.keyword[keyword]) {
+					return thisLang[data.dict.keyword[keyword][0]];
+				} else {
+					return wholeString
+				}
+			});
 		}
 	}
 }
