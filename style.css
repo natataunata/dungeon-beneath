@@ -255,7 +255,7 @@ svg {
 	height: 3rem;
 	vertical-align: middle;
 }
-.s16 svg {
+.s16 svg, #path_2 svg {
 	width: 2rem;
 	height: 2rem;
 }
