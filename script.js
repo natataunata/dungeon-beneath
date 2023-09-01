@@ -400,7 +400,7 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 		} else if(data.path[i][j].empty) {
 			
 		} else if(data.path[i][j].bossPool == 0 || data.path[i][j].bossPool) {
-			thisGroup.appendChild(createSVG(24, data.menu.path));
+			thisGroup.appendChild(createSVG(24, data.menu.path[0]));
 			for(var k = 0, kMax = data.bossPool[data.path[i][j].bossPool].length; k < kMax; k++) {
 				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k], onclick: goToTooltip, className: data.unit2[data.bossPool[data.path[i][j].bossPool][k]][10]?'hard':''},
 					//create(' '),
@@ -409,7 +409,7 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 			}
 			if(data.path[i][j].choice) {
 				thisGroup.appendChild(create(' '));
-				thisGroup.appendChild(createSVG(24, data.menu.path));
+				thisGroup.appendChild(createSVG(24, data.menu.path[0]));
 			}
 		} else if(data.path[i][j].enemy) {
 			thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.path[i][j].enemy, onclick: goToTooltip},
