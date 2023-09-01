@@ -90,7 +90,8 @@ keywords = [
 	['poison', '{kw-poison}'],
 	['kill', 'summon an enemy'],
 	['counter', '{kw-counter}'],
-	['soulcast','{kw-channel}','max soul']
+	['soulcast','{kw-channelsoul}','max soul'],
+	['bloodcast','{kw-channelblood}', 'beast takes'],
 ];
 
 //Path Filter
@@ -120,7 +121,7 @@ for(var i = 0, iMax = keywords.length; i < iMax; i++) {
 	}
 	
 }
-for(var i = 1, iMax = 7; i < iMax; i++) {
+for(var i = 1, iMax = 8; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+i}));
 	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'unit_race_'+i, onclick: filter}));
 }
@@ -137,7 +138,7 @@ document.getElementById('ul_unit').appendChild(
 var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
 filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+0}));
 filterNode.appendChild(create('label', {textContent: '-', for: 'item_filter_0', onclick: filter}));
-for(var i = 1, iMax = 7; i < iMax; i++) {
+for(var i = 1, iMax = 8; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+i}));
 	filterNode.appendChild(create('label', {lang: data.dict.tag[i], for: 'item_filter_'+i, onclick: filter}));
 }
@@ -395,7 +396,7 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 			data.path[i][j].img = data.menu[data.path[i][j].lnk.split('#').shift()][0];
 		}
 		if(data.path[i][j].img == 0 || data.path[i][j].img) {
-			thisGroup.appendChild(createSVG(24, data.path[i][j].img));
+			thisGroup.appendChild(createSVG(i==2?16:24, data.path[i][j].img));
 		} else if(data.path[i][j].empty) {
 			
 		} else if(data.path[i][j].bossPool == 0 || data.path[i][j].bossPool) {
