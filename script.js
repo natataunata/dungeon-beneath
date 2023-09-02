@@ -88,7 +88,7 @@ keywords = [
 	['scheme', '{kw-scheme}'],
 	['summon', '{kw-summon', 'fill', 'ally dies'],
 	['poison', '{kw-poison}'],
-	['kill', 'summon an enemy'],
+	['kills', 'summon an enemy'],
 	['counter', '{kw-counter}'],
 	['soulcast','{kw-channelsoul}','max soul'],
 	['bloodcast','{kw-channelblood}', 'beast takes'],
