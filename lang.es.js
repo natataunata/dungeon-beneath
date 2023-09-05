@@ -20,6 +20,7 @@ var L = [
     "Arquero",
     "Mago",
     "Discípulo",
+    "Multiclase",
     "-",
     "Solo frente",
     "Atrás solo",
@@ -892,4 +893,3 @@ var L = [
     "El Abismo",
     "El portal"
 ];
-
