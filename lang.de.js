@@ -20,6 +20,7 @@ var L = [
     "Bogenschütze",
     "Zauberer",
     "Gefolgsmann",
+    "Multiklasse",
     "-",
     "Nur Vorne",
     "Nur Hinten",
