@@ -916,9 +916,9 @@ delete langSelectNode;
 
 //Now thisParty Slug
 if(thisParty != '') {
-	loadParty();
+	loadParty(thisParty);
 }
-function loadParty(e) {
+function loadParty(thisParty) {
 	if(this) {
 		thisParty = this.textContent;
 	} else {
