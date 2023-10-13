@@ -47,7 +47,7 @@ for(var linkName in data.menu) {
 	allA.push(linkName);
 	thisNode = create('ul', {id: 'ul_'+linkName});
 	document.getElementById('body').appendChild(thisNode);
-	document.getElementById('body').insertBefore(create('input', {type: 'radio', className: 'toggler', name: 'toggle_view', id: 'toggle_'+linkName}),
+	document.getElementById('body').insertBefore(create('input', {type: linkName=='party'?'checkbox':'radio', className: 'toggler', name: linkName=='party'?'toggle_party':'toggle_view', id: 'toggle_'+linkName}),
 		thisNode
 	);
 	nav.appendChild(
@@ -56,6 +56,12 @@ for(var linkName in data.menu) {
 			create('span', {lang: data.menu[linkName][1]})
 	));
 }
+
+//give visibility to the Custom Party.
+var moveNode = document.getElementById('body');
+moveNode.insertBefore(moveNode.lastChild, moveNode.firstChild);
+moveNode.insertBefore(moveNode.lastChild, moveNode.firstChild);
+
 
 
 var difficulty = create('div', {className: 'difficulty'});
@@ -71,8 +77,166 @@ for(var i = 0, iMax = 7; i < iMax; i++) {
 	}
 	difficulty.appendChild(toggleNode);
 }
+
 document.getElementById('header').appendChild(difficulty);
 document.getElementById('header').appendChild(nav);
+
+/* ### Party Builder
+*/
+
+var slug_order = [
+	['hero', ['unit'], ['item', 3]],
+	['relic', ['relic', 10]],
+	['unit_3', ['unit'], ['item', 3], ['potion']],
+	['unit_3', ['unit'], ['item', 3], ['potion']]
+];
+
+var partyBuilder = create('div', {className: 'party'}), slug_cat = {unit: 0, item: 0, relic: 0, potion: 0};
+for(var i = 0, iMax = slug_order.length; i < iMax; i++) {
+	var subNodeID = slug_order[i][0].split('_');
+	subNodeID[1] = subNodeID[1] ? subNodeID[1] : 1;
+	var subNode = create('div', {className: 'party_'+subNodeID[0]});
+	for(var j = 0, jMax = subNodeID[1]; j < jMax; j++) {
+		for(var k = 1, kMax = slug_order[i].length; k < kMax; k++) {
+			for(var l = 0, lMax = slug_order[i][k][1] || 1; l < lMax; l++) {
+				var thisCat = [slug_order[i][k][0]];
+				thisCat.push(slug_cat[thisCat[0]]);
+				slug_cat[thisCat[0]]++;
+				if( (thisCat[0] == 'relic' && l%5==0 && i)) {
+					subNode.appendChild(create('br', {}));
+				}
+				
+				subNode.appendChild(create('span',
+					{className: 'placeholder-'+(thisCat[0]=='unit'?'unit':'item'),
+					id: 'party_'+thisCat[0]+'_'+thisCat[1]}
+				));
+			}
+		}
+		subNode.appendChild(create('br', {}));
+	}
+	partyBuilder.appendChild(subNode);
+}
+
+partyBuilder.appendChild(create('div', {id: 'party_slug', textContent: 'slug', lang: data.menu.party[1], contentEditable: true, onfocusout: loadParty}));
+
+document.getElementById('ul_party').appendChild(partyBuilder);
+
+var placeholder = '';
+
+document.body.onclick = function(e) {
+	var node = e.target;
+	//Blinking and Deletion behavior
+	while((!node.className.indexOf || node.className.indexOf('placeholder') == -1) && node != document.body) {
+		node = node.parentNode;
+	}
+	if(node != document.body && node.className.indexOf('placeholder') != -1) {
+		if(placeholder != '') {
+			document.getElementById(placeholder).className = document.getElementById(placeholder).className.replace(' blinkbg', '');
+		}
+		if(placeholder == node.id) {
+			placeholder = '';
+			node.textContent = '';
+			update_party_slug();
+		} else {
+			placeholder = node.id;
+			node.className = node.className.replace(' blinkbg', '') + ' blinkbg';
+		}
+			return null;
+	}
+	if(placeholder == '') {
+		return null;
+	}
+	
+	//Insert Image behavior
+	var regexp_id = [/^(item|artifact)/, /^(hero|monster|unit)/];
+	var node = e.target, idType = placeholder.indexOf('unit') == -1 ? 0:1;
+	while(!node.id &&  node != document.body && !regexp_id[idType].test(node.id)) {
+		node = node.parentNode;
+	}
+	if(node != document.body && node.nodeName == 'LI' && regexp_id[idType].test(node.id)) {
+		var IDsplit = node.id.split('_');
+		var placeholderNode = document.getElementById(placeholder);
+
+		var dimSprite = 24, spriteID = -1, entityID = '';
+		
+		if(idType) {
+			if(node.id.indexOf('unit') != -1) {
+				if(placeholderNode.id == 'party_unit_0') {
+					return;
+				}
+				spriteID = data.unit[IDsplit[1]][9];
+				entityID = data.unit[IDsplit[1]][10];
+			} else if(node.id.indexOf('monster') != -1) {
+				spriteID = data.unit2[IDsplit[1]][8];
+				entityID = data.unit2[IDsplit[1]][9];
+				if(data.unit2[IDsplit[1]][10] == 0) {
+					dimSprite = 16;
+				}
+			} else if(node.id.indexOf('hero') != -1) {
+				if(placeholderNode.id != 'party_unit_0') {
+					return;
+				}
+				spriteID = data.hero[IDsplit[1]][7];
+				entityID = data.hero[IDsplit[1]][8];
+			}
+		} else {
+			dimSprite = 16;
+			//data.item[i][5] upgrade check
+			if(node.id.indexOf('item') != -1) {
+				if((placeholderNode.id.indexOf('potion')!= -1 &&
+					data.item[IDsplit[1]][5] != '') ||
+					placeholderNode.id.indexOf('relic') != -1
+				) {
+					return;
+				}
+				spriteID = data.item[IDsplit[1]][6];
+				entityID = data.item[IDsplit[1]][7];
+			} else if(node.id.indexOf('artifact') != -1) {
+				if(placeholderNode.id.indexOf('relic') == -1) {
+					return;
+				}
+				spriteID = data.artifact[IDsplit[1]][2];
+				entityID = data.artifact[IDsplit[1]][3];
+			}
+		}
+
+		placeholderNode.textContent = '';
+		placeholderNode.appendChild(create('span', {className: 'sprite_bg s'+dimSprite, tooltip: node.id, slug: entityID},
+			createSVG(dimSprite, spriteID)
+		));
+		
+		placeholderNode.className = placeholderNode.className.replace(' blinkbg', '');
+		placeholder = '';
+		
+		update_party_slug();
+	}
+}
+
+var update_party_slug = function() {
+	var slug_cat = {unit: 0, item: 0, relic: 0, potion: 0}, thisSlug = [];
+	for(var i = 0, iMax = slug_order.length; i < iMax; i++) {
+		var subNodeID = slug_order[i][0].split('_');
+		subNodeID[1] = subNodeID[1] ? subNodeID[1] : 1;
+		for(var j = 0, jMax = subNodeID[1]; j < jMax; j++) {
+			thisSlug.push('');
+			for(var k = 1, kMax = slug_order[i].length; k < kMax; k++) {
+				for(var l = 0, lMax = slug_order[i][k][1] || 1; l < lMax; l++) {
+					var thisCat = [slug_order[i][k][0]];
+					thisCat.push(slug_cat[thisCat[0]]);
+					slug_cat[thisCat[0]]++;
+					var thisNode = document.getElementById('party_'+thisCat[0]+'_'+thisCat[1]);
+					if(thisNode && thisNode.firstChild && thisNode.firstChild.slug) {
+						thisSlug[thisSlug.length-1] += thisNode.firstChild.slug;
+					}
+				}
+			}
+		}
+	}
+	document.getElementById('party_slug').textContent = '';
+	document.getElementById('party_slug').contentEditable = false;
+	document.getElementById('party_slug').onfocusout = false;
+	document.getElementById('party_slug').appendChild(create('a', {href: '?'+data.lang[userLang][1]+'&p='+thisSlug.join('.'), textContent: thisSlug.join('.')}));
+};
 
 
 /* ### Add filter buttons to the Unit and Item divs.
@@ -255,7 +419,7 @@ var unitNode2 = document.getElementById('ul_monster');
 for(var i = 1, iMax = data.unit2.length; i < iMax; i++) {
 	unitNode2.appendChild(
 		create('li', {className: 'sheet unit', id: 'monster_'+i},
-			create('span', {className: 'sprite_bg s'+(data.unit2[i][9]?24:16)}, createSVG(data.unit2[i][9]?24:16, data.unit2[i][8])),
+			create('span', {className: 'sprite_bg s'+(data.unit2[i][10]?24:16)}, createSVG(data.unit2[i][10]?24:16, data.unit2[i][8])),
 			create('span', {className: 'stats'},
 				create('span', {className: 'atk', textContent: data.dict.reach[data.unit2[i][6]] == '-'?'-':data.unit2[i][3]}),
 				create('span', {className: 'hp', textContent: data.unit2[i][4].join?data.unit2[i][4][0]:data.unit2[i][4]}),
@@ -402,7 +566,7 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 		} else if(data.path[i][j].bossPool == 0 || data.path[i][j].bossPool) {
 			thisGroup.appendChild(createSVG(24, data.menu.path[0]));
 			for(var k = 0, kMax = data.bossPool[data.path[i][j].bossPool].length; k < kMax; k++) {
-				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k], onclick: goToTooltip, className: data.unit2[data.bossPool[data.path[i][j].bossPool][k]][10]?'hard':''},
+				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j].bossPool][k], onclick: goToTooltip, className: data.unit2[data.bossPool[data.path[i][j].bossPool][k]][11]?'hard':''},
 					//create(' '),
 					createSVG(24, data.unit2[data.bossPool[data.path[i][j].bossPool][k]][8])
 				));
@@ -416,7 +580,7 @@ for(var i = 1, iMax = data.path.length; i < iMax; i++) {
 				createSVG(24, data.unit2[data.path[i][j].enemy][8])
 			));
 		} else {
-			console.log(JSON.stringify(data.path[i][j]));
+			console.log(JSON.stringify(data.path[i][j]) + ' '+i+' '+j);
 		}
 		thisNode.appendChild(thisGroup);
 	}
@@ -437,12 +601,12 @@ var tooltipStatus = 0;
 var tooltip = create('li', {id: 'tooltip', className: 'sheet'});
 document.body.appendChild(tooltip);
 
-document.getElementById('body').onmouseover = function(e){
+document.body.onmouseover = function(e){
 	var node = e.target;
-	while(!node.getAttribute('tooltip') && node.id != 'body') {
+	while(!node.getAttribute('tooltip') && node != document.body) {
 		node = node.parentNode;
 	}
-	if(node.id != 'body' && node.getAttribute('tooltip') && node.getAttribute('tooltip') != tooltipStatus) {
+	if(node != document.body && node.getAttribute('tooltip') && node.getAttribute('tooltip') != tooltipStatus) {
 		//if(tooltipNode) tooltipNode.parentNode.removeChild(tooltipNode);
 		tooltipStatus = node.getAttribute('tooltip');
 		tooltip.className = document.getElementById(tooltipStatus).className;
@@ -701,33 +865,8 @@ document.getElementById('toggle_path').click(); //Let's show some content at lea
 document.getElementById('difficulty_0').click();
 document.querySelector('label[for="path_path_1"]').click();
 
-function selectLang(e) {
-	var thisHash = document.location.search || 'en', thisUserLang = 0;
-	thisHash = thisHash.replace('?','');
-	for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
-		if(thisHash == data.lang[i][1]) {
-			thisUserLang = i;
-			break;
-		}
-	}
-	if(thisUserLang != userLang) {
-		userLang = thisUserLang;
-		if(userLang == 0) {
-			translate();
-		} else {
-			var langNode = document.getElementById('langNode');
-			if(!langNode) {
-				langNode = create('script', {src: 'lang.'+data.lang[userLang][1]+'.js', onload: function() {
-					translate();
-				}});
-				document.body.appendChild(langNode);
-			} else {
-				langNode.src = 'lang.'+data.lang[userLang][1]+'.js';
-			}
-		}
-	}
-}
-
+/*// Page Query and Lang Selection
+//*/
 var langSelectNode = create('div', {className: 'lang'});
 for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
 		langSelectNode.appendChild(create('a', {textContent: data.lang[i][0], href: '?'+data.lang[i][1]}));
@@ -735,4 +874,103 @@ for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
 document.getElementById('header').firstElementChild.appendChild(langSelectNode)
 
 var userLang = -1;
-selectLang();
+
+var thisHash = document.location.search || 'en', thisUserLang = 0, tryUserLang = 0, thisParty = '';
+thisHash = thisHash.replace('?','').split('&');
+for(var i = 0, iMax = thisHash.length; i < iMax; i ++) {
+	var thisVar = thisHash[i].split('=');
+	if(thisVar.length > 1) {
+		thisParty = thisVar[1];
+	} else {
+		tryUserLang = thisVar[0];
+	}
+}
+if(thisHash.join) {
+	thisHash = 'en';
+}
+for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
+	if(tryUserLang == data.lang[i][1]) {
+		thisUserLang = i;
+		break;
+	}
+}
+delete thisHash; delete tryUserLang;
+if(thisUserLang != userLang) {
+	userLang = thisUserLang;
+	if(userLang == 0) {
+		translate();
+	} else {
+		var langNode = document.getElementById('langNode');
+		if(!langNode) {
+			langNode = create('script', {src: 'lang.'+data.lang[userLang][1]+'.js', onload: function() {
+				translate();
+			}});
+			document.body.appendChild(langNode);
+		} else {
+			langNode.src = 'lang.'+data.lang[userLang][1]+'.js';
+		}
+	}
+}
+delete thisUserLang;
+delete langSelectNode;
+
+//Now thisParty Slug
+if(thisParty != '') {
+	loadParty();
+}
+function loadParty(e) {
+	if(this) {
+		thisParty = this.textContent;
+	} else {
+		document.getElementById('toggle_party').click();
+	}
+	thisParty = thisParty.split('.');
+	var slug_column = {
+		unit: 10,
+		unit2: 9,
+		hero: 8,
+		item: 7,
+		artifact: 3
+	};
+	for(var i = 0, iMax = thisParty.length; i < iMax; i++) {
+		var slug_cat = {unit: 0, item: 0, relic: 0, potion: 0};
+		for(var j = 0, jMax = thisParty[i].length; j < jMax+1; j+=2) {
+			var currentSlug = thisParty[i][j] + thisParty[i][j+1];
+			for(var prop in slug_column) {
+				for(var k = 0, kMax = data[prop].length; k < kMax; k++) {
+					if(data[prop][k][slug_column[prop]] == currentSlug) {
+						var thisAction = [prop, k];
+						switch(thisAction[0]) {
+							case 'unit2':
+							thisAction[0] = 'monster';
+							case 'unit':
+							case 'hero':
+							document.getElementById('party_unit_'+(i?i-1:0)).click();
+							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
+							break;
+							case 'artifact':
+							document.getElementById('party_relic_'+(j/2<10?j/2:0)).click();
+							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
+							break;
+							case 'item':
+							if(data.item[k][5] == '') { //potion
+								document.getElementById('party_potion_'+(i?i-2:0)).click();
+								document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
+							} else {
+								document.getElementById('party_item_'+(((i?i-1:0)*3)+slug_cat.item)).click();
+								if(slug_cat.item < 2) {
+									slug_cat.item++;
+								};
+								document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
+							}
+							break;
+							default:
+						}
+						break;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
