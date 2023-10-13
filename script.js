@@ -235,7 +235,7 @@ var update_party_slug = function() {
 	document.getElementById('party_slug').textContent = '';
 	document.getElementById('party_slug').contentEditable = false;
 	document.getElementById('party_slug').onfocusout = false;
-	document.getElementById('party_slug').appendChild(create('a', {href: '?'+data.lang[userLang][1]+'&p='+thisSlug.join('.'), textContent: thisSlug.join('.')}));
+	document.getElementById('party_slug').appendChild(create('a', {href: '?'+data.lang[userLang][1]+'%26p='+thisSlug.join('.'), textContent: thisSlug.join('.')}));
 };
 
 
