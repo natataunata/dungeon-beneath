@@ -919,7 +919,7 @@ if(thisParty != '') {
 	loadParty(thisParty);
 }
 function loadParty(thisParty) {
-	if(this) {
+	if(this && this.nodeName) {
 		thisParty = this.textContent;
 	} else {
 		document.getElementById('toggle_party').click();
