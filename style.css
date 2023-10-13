@@ -153,6 +153,24 @@ h1, h2 {
 	grid-gap : 0.5em;
 	padding: 0.5em;
 }
+
+.party {
+	width: 100%;
+	box-sizing: border-box;
+	display: inline-grid;
+	grid-template-columns:  repeat(2, minmax(0, 1fr));
+	grid-template-areas:
+		'party_relic party_hero'
+		'party_unit party_unit2'
+		'party_slug'
+	;
+	grid-gap : 0.5em;
+	padding: 0.5em;
+	background-color: var(--color_neutral_8);
+	border: 1px solid var(--color_neutral_0);
+	margin-bottom: 0.5em;
+}
+
 #ul_upgrade p {
 	background-color: var(--color_neutral_8);
 	box-sizing: border-box;
@@ -216,6 +234,14 @@ h1, h2 {
 			'sprite desc desc desc stats'
 		;
 	}
+	.party {
+		grid-template-columns:  repeat(2, minmax(0, 1fr));
+		grid-template-areas:
+			'party_relic party_hero'
+			'party_unit party_unit2'
+			'party_slug party_slug'
+		;
+	}
 }
 
 @media only screen and (min-width: 42rem) {
@@ -227,6 +253,16 @@ h1, h2 {
 			'sprite stats tag name title'
 			'sprite stats desc desc desc'
 			'sprite stats desc desc desc'
+		;
+	}
+	.party {
+		width: 40rem;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-areas:
+			'party_relic party_unit party_unit2'
+			'party_relic party_unit party_unit2'
+			'party_hero party_unit party_unit2'
+			'party_slug party_slug party_slug'
 		;
 	}
 }
@@ -405,4 +441,62 @@ span.hard {
 	display: inline-block;
 	margin: 0 1em;
 	text-decoration: none;
+}
+
+.party_hero {grid-area: party_hero;}
+.party_unit {grid-area: party_unit; direction: rtl;}
+.party_unit + .party_unit {grid-area: party_unit2; direction: ltr;}
+.party_relic {grid-area: party_relic;}
+#party_slug {grid-area: party_slug; word-break: break-all;}
+
+.placeholder-unit {
+	border-bottom: 1px dotted black;
+	border-left: 1px dotted black;
+	width: 3em;
+	height: 3em;
+	display: inline-block;
+	vertical-align: bottom;
+}
+.placeholder-item, .placeholder-potion  {
+	border-bottom: 1px dotted black;
+	border-left: 1px dotted black;
+	width: 2em;
+	height: 2em;
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+.party .sprite_bg {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	line-height: 1em;
+	vertical-align: bottom;
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+}
+
+
+*[langt]:not([langt=""]) {
+	cursor: help;
+}
+
+
+.blinkbg {
+  -webkit-animation: blinkanim 1s infinite;
+  -moz-animation: blinkanim 1s infinite;
+  -o-animation: blinkanim 1s infinite;
+  animation: blinkanim 1s infinite;
+}
+
+@-webkit-keyframes blinkanim {
+  0%, 49% {
+    background-color: var(--color_neutral_0);
+	opacity: 0.5;
+	border-bottom: 1px dashed red;
+	border-left: 1px dashed red;
+  }
+  50%, 100% {
+	opacity: 1;
+  }
 }
