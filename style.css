@@ -78,7 +78,7 @@ html {
 	overflow-y: scroll;
 }
 
-.name, .tag, .reach, .stats, .trigger, .summon {
+.name, .tag, .reach, .stats, .trigger, .lnk {
 	font-weight: bold;
 }
 
@@ -154,7 +154,7 @@ h1, h2 {
 	padding: 0.5em;
 }
 
-.party {
+.party{
 	width: 100%;
 	box-sizing: border-box;
 	display: inline-grid;
@@ -168,10 +168,10 @@ h1, h2 {
 	padding: 0.5em;
 	background-color: var(--color_neutral_8);
 	border: 1px solid var(--color_neutral_0);
-	margin-bottom: 0.5em;
+	margin: 0 1em 1em 0;
 }
 
-#ul_upgrade p {
+#ul_VoidRoom p {
 	background-color: var(--color_neutral_8);
 	box-sizing: border-box;
 	border: 1px solid var(--color_neutral_0);
@@ -180,7 +180,7 @@ h1, h2 {
 	width: auto;
 	display: inline-block;
 }
-#ul_upgrade .sprite_bg {
+#ul_VoidRoom .sprite_bg {
 	display: inline-block;
 }
 
@@ -212,7 +212,7 @@ h1, h2 {
 .reach {grid-area: title;}
 .upgrade, .stats {grid-area: stats;}
 .stats {width: 4rem;}
-#ul_unit .stats {width: 6rem;}
+#ul_Campfire .stats {width: 6rem;}
 .stats > span {display: inline-block; width: 100%;}
 .desc {grid-area: desc; font-weight: normal;}
 
@@ -277,7 +277,7 @@ h1, h2 {
 .cost::after {content:"●"; color: gold; font-size: 1.5em;}
 
 .trigger {color: var(--color_info); cursor: help; font-style: italic;}
-.summon {color: var(--color_link); cursor: help; font-style: italic;}
+.lnk {color: var(--color_link); cursor: help; font-style: italic;}
 
 ul {
 	list-style: none;
@@ -291,7 +291,7 @@ svg {
 	height: 3rem;
 	vertical-align: middle;
 }
-.s16 svg, #path_2 svg {
+.s16 svg, #path_1 svg {
 	width: 2rem;
 	height: 2rem;
 }
@@ -441,6 +441,19 @@ span.hard {
 	display: inline-block;
 	margin: 0 1em;
 	text-decoration: none;
+}
+
+.menuItem {
+	box-sizing: border-box;
+}
+.menuItem.toggled {
+	border-radius: 0.5em;
+	border: 1px solid black;
+	background: var(--color_neutral_8);
+}
+.menuItem:not(.toggled):hover {
+	border-radius: 0.5em;
+	border: 1px dashed black;
 }
 
 .party_hero {grid-area: party_hero;}
