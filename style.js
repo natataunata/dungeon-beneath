@@ -1,3 +1,5 @@
+var css = `
+
 /*
 BEM: Block (Layout), Element, Modifier
 SASS: Reset, Typography, Component (Buttons...), Layout, ~Pages
@@ -11,34 +13,33 @@ Try to avoid nested selectors, except for state-modifier
 	=> bgcolor/color _ neutral/primary/secondary/error _ lightness (10 is always white, 0 black)
 */
 /* Background and Surface must have bg-color against which color is legible */
-@media (prefers-color-scheme: light) {
-	:root {
-	--color_neutral_0: black;
-	--color_neutral_1: #080809;
-	--color_neutral_2: #241800;
-	
-	--color_neutral_7: #C0AD94;
-	--color_neutral_8: #DBCAAB;
-	--color_neutral_10: white;
-	
-	--color_path_1: #b5bf93;
-	--color_path_2: #93bfb3;
-	--color_path_3: #bf9398;
-	--color_path_4: #9b93bf;
-	
-	--color_filter_blue: darkblue;
-	--color_filter_red: darkred;
-	--color_filter_green: darkgreen;
-	--color_filter_bgblue: lightblue;
-	--color_filter_bgred: salmon;
-	--color_filter_bggreen: lightgreen;
-	--color_filter_neutral: black;
-	--color_filter_bgneutral: lightgrey;
-	
-	--color_info: purple;
-	--color_link: darkblue;
-	--color_andromalius: purple;
-	}
+
+:root {
+--color_neutral_0: black;
+--color_neutral_1: #080809;
+--color_neutral_2: #241800;
+
+--color_neutral_7: #C0AD94;
+--color_neutral_8: #DBCAAB;
+--color_neutral_10: white;
+
+--color_path_1: #b5bf93;
+--color_path_2: #93bfb3;
+--color_path_3: #bf9398;
+--color_path_4: #9b93bf;
+
+--color_filter_blue: darkblue;
+--color_filter_red: darkred;
+--color_filter_green: darkgreen;
+--color_filter_bgblue: lightblue;
+--color_filter_bgred: salmon;
+--color_filter_bggreen: lightgreen;
+--color_filter_neutral: black;
+--color_filter_bgneutral: lightgrey;
+
+--color_info: purple;
+--color_link: darkblue;
+--color_andromalius: purple;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -90,15 +91,35 @@ margin: 0;
 text-align: center;
 }
 
+select {
+	text-align: center;
+	color: var(--color_neutral_0);
+	background: var(--color_neutral_8);
+}
+
 /* ### LAYOUT
 */
 
-/*.header {text-align: center;}*/
+hgroup, .difficulty {
+	display: inline-block;
+	box-sizing: border-box;
+	text-align: center;
+}
+.difficulty {
+	margin-left: 1rem;
+}
+.difficulty .colorscheme, .difficulty .lang {
+	margin: 0.5em;
+}
+.colorscheme {
+	cursor: pointer;
+}
+
 h1, h2 {
 	margin: 1rem;
 	padding: 0;
-	display: inline-block;
 }
+
 .menu {
 	display: inline-block;
 	padding: 1rem;
@@ -373,6 +394,10 @@ input:checked + div {
 	display: block;
 }
 
+.lang, .colorscheme {
+	display: inline-block;
+}
+
 .toggle span {
 	background: darkred;
 	color: gold;
@@ -432,15 +457,6 @@ span.hard {
 }
 .hard .hard {
 	display: inline-block;
-}
-
-.lang {
-	padding-bottom: 1em;
-}
-.lang a {
-	display: inline-block;
-	margin: 0 1em;
-	text-decoration: none;
 }
 
 .menuItem {
@@ -513,3 +529,9 @@ span.hard {
 	opacity: 1;
   }
 }
+
+`;
+
+var styleSheet = document.createElement("style")
+styleSheet.innerHTML = css;
+document.head.appendChild(styleSheet);
