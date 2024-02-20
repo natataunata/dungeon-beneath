@@ -1,7 +1,6 @@
 /*
 	TODO
-	factions,
-	unlock,
+	factions (color), unlock, cursed rings, transformation
 	make the UI more like the Game's Book of Champions*/
 
 
@@ -163,7 +162,7 @@ document.body.onclick = function(e) {
 	}
 	
 	//Insert Image behavior
-	var regexp_id = [/^(item|artifact)/, /^(hero|monster|unit)/];
+	var regexp_id = [/^(item|relic)/, /^(hero|monster|unit)/];
 	var node = e.target, idType = placeholder.indexOf('unit') == -1 ? 0:1;
 	while(!node.id &&  node != document.body && !regexp_id[idType].test(node.id)) {
 		node = node.parentNode;
@@ -206,7 +205,7 @@ document.body.onclick = function(e) {
 				}
 				spriteID = data.item[IDsplit[1]][6];
 				entityID = data.item[IDsplit[1]][7];
-			} else if(node.id.indexOf('artifact') != -1) {
+			} else if(node.id.indexOf('relic') != -1) {
 				if(placeholderNode.id.indexOf('relic') == -1) {
 					return;
 				}
@@ -409,7 +408,7 @@ for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 var artifactNode = document.getElementById('ul_RelicRoom');
 for(var i = 0, iMax = data.relic.length; i < iMax; i++) {
 	artifactNode.appendChild(
-		create('li', {className: 'sheet artifact', id: 'artifact_'+i},
+		create('li', {className: 'sheet artifact', id: 'relic_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.relic[i][1])),
 			create('span', {className: 'name', lang: data.relic[i][0]}),
 			create('span', {className: 'desc', lang: data.relic[i][2]})
@@ -894,7 +893,7 @@ function translate() {
 						return returnTooltip.join('/');
 					} else if(keyword.indexOf('relic') != -1) {
 						var relicID = wholeString.match(/[0-9]+/).shift();
-						var innerNode = create('span', {className: 'lnk', tooltip: 'artifact_'+relicID, textContent: thisLang[data.relic[parseInt(relicID)][0]]}), node = create('div', {}, innerNode);
+						var innerNode = create('span', {className: 'lnk', tooltip: 'relic_'+relicID, textContent: thisLang[data.relic[parseInt(relicID)][0]]}), node = create('div', {}, innerNode);
 						return node.innerHTML;
 					} else if(keyword.indexOf('scaling') != -1) {
 						var scalingID = keyword.split(':');
@@ -938,7 +937,7 @@ function translate() {
 		return thisLang[data.relic[a][0]].localeCompare(thisLang[data.relic[b][0]]);
 	});
 	for(i = 0, iMax = arrayNode.length; i < iMax; i++) {
-	  artefactNode.appendChild(document.getElementById('artifact_' + arrayNode[i]));
+	  artefactNode.appendChild(document.getElementById('relic_' + arrayNode[i]));
 	}
 	
 	var unitNode = document.getElementById('ul_Campfire'), arrayNode = [];
@@ -1088,7 +1087,7 @@ function loadParty(thisParty) {
 	if(this && this.nodeName) {
 		thisParty = this.textContent;
 	} else {
-		document.getElementById('toggle_party').click();
+		document.getElementById('toggle_SummoningCircle').click();
 	}
 	thisParty = thisParty.split('.');
 	var slug_column = {
@@ -1096,7 +1095,7 @@ function loadParty(thisParty) {
 		unit2: 8,
 		hero: 8,
 		item: 7,
-		artifact: 3
+		relic: 3
 	};
 	for(var i = 0, iMax = thisParty.length; i < iMax; i++) {
 		var slug_cat = {unit: 0, item: 0, relic: 0, potion: 0};
@@ -1114,7 +1113,7 @@ function loadParty(thisParty) {
 							document.getElementById('party_unit_'+(i?i-1:0)).click();
 							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							break;
-							case 'artifact':
+							case 'relic':
 							document.getElementById('party_relic_'+(j/2<10?j/2:0)).click();
 							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							break;
