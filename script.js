@@ -972,16 +972,15 @@ document.querySelector('div.difficulty').appendChild(create('divv', {className: 
 ));
 var systemScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
 function toggleColorScheme(toggle=true){
-	let localScheme = localStorage.getItem("scheme");
-	if(localScheme != 'dark' && localScheme != 'light') {
-		localScheme = systemScheme;
+	let targetScheme = localStorage.getItem("scheme");
+	if(targetScheme != 'dark' && targetScheme != 'light') {
+		targetScheme = systemScheme;
 	}
 	if(toggle) {
-		localScheme = systemScheme;
-		systemScheme = systemScheme == 'dark' ? 'light' : 'dark';
+		targetScheme = systemScheme == 'dark' ? 'light' : 'dark';
 	}
 	// Change the toggle button to be the opposite of the current scheme
-    if(localScheme == 'dark') {
+    if(targetScheme == 'dark') {
         document.getElementById("icon-sun").style.display = 'inline';
         document.getElementById("icon-moon").style.display = 'none';
     } else {
@@ -989,12 +988,12 @@ function toggleColorScheme(toggle=true){
         document.getElementById("icon-sun").style.display = 'none';
     }
 
-	if(localScheme != systemScheme) {
-		systemCheme = localScheme;
-		localStorage.setItem("scheme", localScheme);
+	if(targetScheme != systemScheme) {
+		systemScheme = targetScheme;
+		localStorage.setItem("scheme", targetScheme);
 		switchColorScheme();
-	} 
-	return localScheme;
+	}
+	return targetScheme;
 }
 
 // Apply the chosen color scheme by traversing stylesheet rules, and applying a medium.
