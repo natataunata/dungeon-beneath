@@ -479,16 +479,16 @@ span.hard {
 #party_slug {grid-area: party_slug; word-break: break-all;}
 
 .placeholder-unit {
-	border-bottom: 1px dotted black;
-	border-left: 1px dotted black;
+	border-bottom: 1px dotted var(--color_neutral_0);
+	border-left: 1px dotted var(--color_neutral_0);
 	width: 3em;
 	height: 3em;
 	display: inline-block;
 	vertical-align: bottom;
 }
 .placeholder-item, .placeholder-potion  {
-	border-bottom: 1px dotted black;
-	border-left: 1px dotted black;
+	border-bottom: 1px dotted var(--color_neutral_0);
+	border-left: 1px dotted var(--color_neutral_0);
 	width: 2em;
 	height: 2em;
 	display: inline-block;
