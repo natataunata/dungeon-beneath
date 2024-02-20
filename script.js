@@ -183,7 +183,7 @@ document.body.onclick = function(e) {
 			} else if(node.id.indexOf('monster') != -1) {
 				spriteID = data.unit2[IDsplit[1]][6];
 				entityID = data.unit2[IDsplit[1]][8];
-				if(data.unit2[IDsplit[1]][10] == 0) {
+				if(data.unit2[IDsplit[1]][11] == 1) {
 					dimSprite = 16;
 				}
 			} else if(node.id.indexOf('hero') != -1) {
@@ -1118,7 +1118,7 @@ function loadParty(thisParty) {
 							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							break;
 							case 'item':
-							if(data.item[k][5] == '') { //potion
+							if(!data.item[k][5]) { //potion
 								document.getElementById('party_potion_'+(i?i-2:0)).click();
 								document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							} else {
