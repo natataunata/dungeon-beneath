@@ -973,7 +973,7 @@ document.querySelector('div.difficulty').appendChild(create('divv', {className: 
 var systemScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
 function toggleColorScheme(toggle=true){
 	let localScheme = localStorage.getItem("scheme");
-	if(localScheme == 'undefined') {
+	if(localScheme != 'dark' && localScheme != 'light') {
 		localScheme = systemScheme;
 	}
 	if(toggle) {
@@ -1076,7 +1076,6 @@ document.querySelector('label[for="path_path_1"]').click();
 styleMenu();
 
 if(userLang == 0) {
-	console.log('no need to load');
 	translate();
 } else {
 	loadLang(userLang);
