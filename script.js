@@ -1022,7 +1022,7 @@ toggleColorScheme(false);
 //*/
 var userLang = 0, thisParty = '';
 
-var thisHash = document.location.search || localStorage.getItem("lang") || 'en';
+var thisHash = document.location.search || 'en';
 thisHash = thisHash.replace('?','').split('&');
 for(var i = 0, iMax = thisHash.length; i < iMax; i ++) {
 	var thisVar = thisHash[i].split('=');
@@ -1035,6 +1035,13 @@ for(var i = 0, iMax = thisHash.length; i < iMax; i ++) {
 				break;
 			}
 		}
+	}
+}
+thisHash = localStorage.getItem("lang");
+for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
+	if(data.lang[i][1] == thisHash) {
+		userLang = i;
+		break;
 	}
 }
 
@@ -1063,7 +1070,7 @@ function loadLang(e) {
 
 var langSelectNode = create('select', {className: 'lang', onchange: loadLang});
 for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
-		langSelectNode.appendChild(create('option', {textContent: data.lang[i][0], value: i, selected: i==userLang?true:false}));
+	langSelectNode.appendChild(create('option', {textContent: data.lang[i][0], value: i, selected: i==userLang?true:false}));
 }
 document.querySelector('div.difficulty').appendChild(langSelectNode)
 
