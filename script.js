@@ -1,3 +1,10 @@
+/*
+	TODO
+	factions,
+	unlock,
+	make the UI more like the Game's Book of Champions*/
+
+
 /* ###
 	Building the big fat SVG file.
 	! TODO: compile it in less nodes (no pixel by pixel, but bigger rectangles and lines, overwritten by following draws anyway).
@@ -86,8 +93,8 @@ for(var i = 0, iMax = 7; i < iMax; i++) {
 	difficulty.appendChild(toggleNode);
 }
 
-document.getElementById('header').appendChild(difficulty);
-document.getElementById('header').appendChild(nav);
+document.querySelector('header').appendChild(difficulty);
+document.querySelector('#header').appendChild(nav);
 
 /* ### Party Builder
 */
@@ -258,7 +265,7 @@ keywords = [
 	['power', '{kw-charge}'],
 	['doom', '{kw-otherunitdies}', 'summon an enemy'],
 	['scheme', '{kw-scheme}'],
-	['summon', '{kw-summon', 'fill', 'ally dies'],
+	['summoned', 'summon', '{kw-summon', 'fill', 'ally dies'],
 	['poison', '{kw-poison}'],
 	['kills', 'summon an enemy'],
 	['counter', '{kw-counter}'],
@@ -739,7 +746,17 @@ var filter_map = {
 	floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
 	keyword: function(pointer, testValue) {
 		var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
-		return filter_regexp.test(data.L[data.unit[pointer][7]]);
+		if(!data.unit[pointer][7].length) {
+			return filter_regexp.test(data.L[data.unit[pointer][7]])
+		}
+		var thisResult = false;
+		for(var i  = 0, iMax = data.unit[pointer][7].length; i < iMax; i++) {
+			thisResult = filter_regexp.test(data.L[data.unit[pointer][7][i]]);
+			if(thisResult) {
+				return thisResult;
+			}
+		}
+		return thisResult;
 	},
 	race: function(pointer, testValue) {return data.unit[pointer][1] == testValue;},
 	job: function(pointer, testValue) {return data.unit[pointer][2] == testValue;},
@@ -842,7 +859,9 @@ function setDifficulty() {
 			if(data.unit[i][4].join) {
 				health = [];
 				for(var j = 0, jMax = data.unit[i][4].length; j < jMax; j++) {
-					health[j] = Math.floor(data.unit[i][4][j] * (1 - defaultScaling/10));
+					if(health[j].indexOf('$') == -1) {
+						health[j] = Math.floor(data.unit[i][4][j] * (1 - defaultScaling/10));
+					}
 				}
 			} else {
 				health = Math.floor(data.unit[i][4] * (1 - defaultScaling/10));
@@ -940,59 +959,128 @@ function translate() {
 	}
 }
 
-document.getElementById('toggle_path').click(); //Let's show some content at least.
-document.getElementById('difficulty_0').click();
-document.querySelector('label[for="path_path_1"]').click();
-styleMenu();
+
+/* ###
+	Locale Preferences, Light/Dark and lang.
+*/
+
+//https://stackoverflow.com/questions/56300132/how-to-override-css-prefers-color-scheme-setting/75124760#75124760
+//CSS CORS limitations are bothersome in local (i.e. for somebody downloading the compendium). So the CSS is now in .js too :|
+document.querySelector('div.difficulty').appendChild(create('divv', {className: 'colorscheme',onclick: toggleColorScheme},
+	create('span', {id: 'icon-sun', textContent: '🌞'}),
+	create('span', {id: 'icon-moon', textContent: '🌚'})
+));
+var systemScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+function toggleColorScheme(toggle=true){
+	let localScheme = localStorage.getItem("scheme");
+	if(localScheme == 'undefined') {
+		localScheme = systemScheme;
+	}
+	if(toggle) {
+		localScheme = systemScheme;
+		systemScheme = systemScheme == 'dark' ? 'light' : 'dark';
+	}
+	// Change the toggle button to be the opposite of the current scheme
+    if(localScheme == 'dark') {
+        document.getElementById("icon-sun").style.display = 'inline';
+        document.getElementById("icon-moon").style.display = 'none';
+    } else {
+        document.getElementById("icon-moon").style.display = 'inline';
+        document.getElementById("icon-sun").style.display = 'none';
+    }
+
+	if(localScheme != systemScheme) {
+		systemCheme = localScheme;
+		localStorage.setItem("scheme", localScheme);
+		switchColorScheme();
+	} 
+	return localScheme;
+}
+
+// Apply the chosen color scheme by traversing stylesheet rules, and applying a medium.
+function switchColorScheme() {
+	for(var sheet_file = 0; sheet_file < document.styleSheets.length; sheet_file++) {
+		for (var sheet_rule = 0; sheet_rule < document.styleSheets[sheet_file].cssRules.length; sheet_rule++) {
+			rule = document.styleSheets[sheet_file].cssRules[sheet_rule];
+
+			if (rule && rule.media && rule.media.mediaText.includes("prefers-color-scheme")) {
+				rule_media = rule.media.mediaText;
+				if (rule_media.includes("light")) {
+					new_rule_media = rule_media.replace("light", "dark");
+				}
+				if (rule_media.includes("dark")) {
+					new_rule_media = rule_media.replace("dark", "light");
+				}
+				rule.media.deleteMedium(rule_media);
+				rule.media.appendMedium(new_rule_media);
+			}
+		}
+	}
+}
+
+toggleColorScheme(false);
 
 /*// Page Query and Lang Selection
 //*/
-var langSelectNode = create('div', {className: 'lang'});
-for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
-		langSelectNode.appendChild(create('a', {textContent: data.lang[i][0], href: '?'+data.lang[i][1]}));
-}
-document.getElementById('header').firstElementChild.appendChild(langSelectNode)
+var userLang = 0, thisParty = '';
 
-var userLang = -1;
-
-var thisHash = document.location.search || 'en', thisUserLang = 0, tryUserLang = 0, thisParty = '';
+var thisHash = document.location.search || localStorage.getItem("lang") || 'en';
 thisHash = thisHash.replace('?','').split('&');
 for(var i = 0, iMax = thisHash.length; i < iMax; i ++) {
 	var thisVar = thisHash[i].split('=');
 	if(thisVar.length > 1) {
 		thisParty = thisVar[1];
 	} else {
-		tryUserLang = thisVar[0];
+		for(var j = 0, jMax = data.lang.length; j < jMax; j++) {
+			if(thisVar[0] == data.lang[j][1]) {
+				userLang = j;
+				break;
+			}
+		}
 	}
 }
-if(thisHash.join) {
-	thisHash = 'en';
-}
-for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
-	if(tryUserLang == data.lang[i][1]) {
-		thisUserLang = i;
-		break;
-	}
-}
-delete thisHash; delete tryUserLang;
-if(thisUserLang != userLang) {
-	userLang = thisUserLang;
-	if(userLang == 0) {
-		translate();
-	} else {
+
+function loadLang(e) {
+	var thisLang = e.target ? e.target.selectedIndex : e;
+	if(thisLang != userLang || !e.target) {
+		userLang = thisLang;
+		localStorage.setItem('lang', data.lang[userLang][1]);
 		var langNode = document.getElementById('langNode');
-		if(!langNode) {
-			langNode = create('script', {src: 'lang.'+data.lang[userLang][1]+'.js', onload: function() {
+		if(langNode) {
+			document.body.removeChild(langNode);
+		}
+		if(userLang) {
+			langNode = create('script', {src: 'lang.'+data.lang[thisLang][1]+'.js', id: 'langNode', onload: function() {
 				translate();
 			}});
 			document.body.appendChild(langNode);
 		} else {
-			langNode.src = 'lang.'+data.lang[userLang][1]+'.js';
+			L = data.L;
+			translate();
 		}
+	} else {
+		L = data.L;
 	}
 }
-delete thisUserLang;
-delete langSelectNode;
+
+var langSelectNode = create('select', {className: 'lang', onchange: loadLang});
+for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
+		langSelectNode.appendChild(create('option', {textContent: data.lang[i][0], value: i, selected: i==userLang?true:false}));
+}
+document.querySelector('div.difficulty').appendChild(langSelectNode)
+
+
+document.getElementById('toggle_path').click(); //Let's show some content at least.
+document.getElementById('difficulty_0').click();
+document.querySelector('label[for="path_path_1"]').click();
+styleMenu();
+
+if(userLang == 0) {
+	console.log('no need to load');
+	translate();
+} else {
+	loadLang(userLang);
+}
 
 //Now thisParty Slug
 if(thisParty != '') {
