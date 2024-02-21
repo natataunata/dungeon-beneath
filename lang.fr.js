@@ -986,5 +986,14 @@ var L = [
     "Transforme un personnage en {kw-summon:29}. Le personnage perd tout son équipement. Consommable.",
     "Sac de Pièces d'Or",
     "Potion d'Expérience Supérieure",
-    "Gagnez +2 XP. Les personnages morts au combat ne peuvent pas gagner d'XP. Consommable."
+    "Gagnez +2 XP. Les personnages morts au combat ne peuvent pas gagner d'XP. Consommable.",
+    "Aucune",
+    "Métal",
+    "Soleil",
+    "Marteau",
+    "Cœur",
+    "Écaille",
+    "Branche",
+    "Crâne",
+    "Griffe"
 ];
