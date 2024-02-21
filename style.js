@@ -384,6 +384,11 @@ svg {
 	color: var(--color_filter_neutral);
 }
 
+.tiny {
+	font-variant: italics;
+	font-size: 0.8em;
+}
+
 input {
 	display: none;
 }
