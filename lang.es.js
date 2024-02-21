@@ -986,5 +986,14 @@ var L = [
     "Transforma a un personaje en un {kw-summon:29}. El personaje pierde todo su equipo. Consumible.",
     "Bolsa de oro",
     "Poción de experiencia mayor",
-    "Gana +2 de EXP. Los personajes que hayan muerto en esta batalla no ganarán EXP. Consumible."
+    "Gana +2 de EXP. Los personajes que hayan muerto en esta batalla no ganarán EXP. Consumible.",
+    "Ninguna",
+    "Metal",
+    "Sol",
+    "Martillo",
+    "Corazón",
+    "Escamoso",
+    "La Rama",
+    "Calavera",
+    "Garra"
 ];
