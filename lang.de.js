@@ -986,5 +986,14 @@ var L = [
     "Verwandelt einen Charakter in einen Kosmischen Schleim. Der Charakter verliert all seine Gegenstände. Verschwindet nach Gebrauch.",
     "Sack voller Gold",
     "Starker Trank der Erfahrung",
-    "Erhalte +2 XP. Charaktere, die in diesem Kampf gestorben sind, können keine XP bekommen. Verschwindet nach Gebrauch."
+    "Erhalte +2 XP. Charaktere, die in diesem Kampf gestorben sind, können keine XP bekommen. Verschwindet nach Gebrauch.",
+    "Keine",
+    "Metall",
+    "Sonne",
+    "Hammer",
+    "Herz",
+    "Schuppen",
+    "Zweig",
+    "Schädel",
+    "Klaue"
 ];
