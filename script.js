@@ -1,6 +1,4 @@
 /*
-	TODO
-	factions (color), unlock, cursed rings, transformation
 	make the UI more like the Game's Book of Champions*/
 
 
@@ -340,45 +338,16 @@ document.getElementById('ul_Store').appendChild(
 );
 
 
-/* ### UNIT[0:name, 1:race, 2:title/class, 3:attack, 4:health, 5:speed,
-		6:sprite, 7:ability, 8:slug, 9:cursedRing/position, 10:transform/faction?/hard?,
-		11:unlock?/is_starter?/is_24?]
-// ❤ ♥ atk ⚔ spd ⪼
-*/
-var heroClass = 0;
-for(var i = 0, iMax = data.L.length; i < iMax; i++) {
-	if(data.L[i] == 'Hero') {
-		heroClass = i;
-		break;
-	}
-}
-var heroNode = document.getElementById('ul_SelectYourHero');
-for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
-	heroNode.appendChild(
-		create('li', {className: 'sheet hero', id: 'hero_'+i},
-			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.hero[i][6])),
-			create('span', {className: 'name', lang: data.hero[i][0]}),
-			create('span', {className: 'title', lang: data.hero[i][2]}),
-			create('span', {className: 'tag'},
-				create('span', {lang: data.hero[i][1]}),
-				create('span', {textContent: ' '}),
-				create('span', {lang: heroClass})
-			),
-			create('span', {className: 'stats'},
-				create('span', {className: 'atk', textContent: data.hero[i][3]}),
-				create('span', {className: 'hp', textContent: data.hero[i][4]}),
-				create('span', {className: 'spd', textContent: data.hero[i][5]})
-			),
-			create('span', {className: 'desc', lang: data.hero[i][7]?data.hero[i][7].join(','):''})
-		)
-	);
-}
+
+
 
 /* ### ITEM[0:name, 1:race/class, 2:cost, 3:ability, 4:[stats], 5:update,
 	6:sprite, 7:slug]
 */
 
 var itemNode = document.getElementById('ul_Store');
+var transformationPotion = 0;
+
 for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 	var elaborateTooltip = [];
 	if(data.item[i][4] && data.item[i][4].join) {
@@ -400,6 +369,65 @@ for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 			)
 		)
 	);
+	if(data.L[data.item[i][0]] == "Potion of Transformation") {
+		transformationPotion = data.item[i][0];
+	}
+}
+
+/* ### UNIT[0:name, 1:race, 2:title/class, 3:attack, 4:health, 5:speed,
+		6:sprite, 7:ability, 8:slug, 9:cursedRing/position, 10:transform/faction?/hard?,
+		11:unlock?/is_starter?/is_24?]
+// ❤ ♥ atk ⚔ spd ⪼
+*/
+var heroClass = 0;
+for(var i = 0, iMax = data.L.length; i < iMax; i++) {
+	if(data.L[i] == 'Hero') {
+		heroClass = i;
+		break;
+	}
+}
+
+var heroNode = document.getElementById('ul_SelectYourHero');
+for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
+	heroNode.appendChild(
+		create('li', {className: 'sheet hero', id: 'hero_'+i},
+			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.hero[i][6])),
+			create('span', {className: 'name', lang: data.hero[i][0]}),
+			create('span', {className: 'title', lang: data.hero[i][2]}),
+			create('span', {className: 'tag'},
+				create('span', {lang: data.hero[i][1]}),
+				create('span', {textContent: ' '}),
+				create('span', {lang: heroClass})
+			),
+			create('span', {className: 'stats'},
+				create('span', {className: 'atk', textContent: data.hero[i][3]}),
+				create('span', {className: 'hp', textContent: data.hero[i][4]}),
+				create('span', {className: 'spd', textContent: data.hero[i][5]})
+			),
+			create('span', {className: 'desc'}, create('span', {lang: data.hero[i][7]?data.hero[i][7].join(','):''}))
+		)
+	);
+	if(data.hero[i][9]) {
+		var thisNode = heroNode.lastChild.lastChild;
+		thisNode.appendChild(create('br', {}));
+		thisNode.appendChild(create('span', {className: 'tiny', lang: data.imgRef.CursedRings[1]}));
+		thisNode.appendChild(create('span', {className: 'tiny', textContent: ': '}));
+		thisNode.appendChild(create('span', {className: 'tiny trigger', lang: data.item[data.hero[i][9]][0], tooltip: 'item_'+data.hero[i][9]}));
+	}
+	if(data.hero[i][10]) {
+		var thisNode = heroNode.lastChild.lastChild;
+		thisNode.appendChild(create('br', {}));
+		thisNode.appendChild(create('span', {className: 'tiny', lang: transformationPotion}));
+		thisNode.appendChild(create('span', {className: 'tiny', textContent: ': '}));
+		thisNode.appendChild(create('span', {className: 'tiny trigger', lang: data.hero[data.hero[i][10]][0]+','+data.hero[data.hero[i][10]][2], tooltip: 'hero_'+data.hero[i][10]}));
+	}
+	if(data.hero[i][11]) {
+		if(data.hero[i][11].length) {
+			var thisNode = heroNode.lastChild.lastChild;
+			thisNode.appendChild(create('br', {}));
+			thisNode.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.hero[i][11][0]+1)+' ('+data.hero[i][11][1]+')'}));
+		}
+	}
 }
 
 /* ### ARTIFACT[0:name, 1:sprite, 2:ability]
@@ -431,16 +459,33 @@ for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 				create('span', {className: 'hp', textContent: data.unit[i][4]}),
 				create('span', {className: 'spd', textContent: data.unit[i][5]})
 			),
-			create('span', {className: 'name', lang: data.unit[i][0]}),
+			create('span', {className: 'name'}, create('span', {lang: data.unit[i][0]})),
 			create('span', {className: 'tag'},
 				create('span', {lang: data.unit[i][1]}),
 				create('span', {textContent: ' '}),
 				create('span', {lang: data.unit[i][2]})
 			),
 			create('span', {className: 'reach', lang: data.unit[i][9]}),
-			create('span', {className: 'desc', lang: data.unit[i][7].join(',')})
+			create('span', {className: 'desc'},
+				create('span', {lang: data.unit[i][7].join(',')})
+			)
 		)
 	);
+	//big dot '⬤'
+	//lock 🔒
+	
+	if(data.unit[i][10]) {
+		var thisNode = unitNode.lastChild.childNodes[2];
+		thisNode.insertBefore(create('span', {langt: data.faction[data.unit[i][10]][0], textContent: '⬤ ', style: 'color:#'+data.faction[data.unit[i][10]][1]+';'}), thisNode.firstChild);
+	}
+	if(data.unit[i][11]) {
+		if(data.unit[i][11].length) {
+			var thisNode = unitNode.lastChild.lastChild;
+			thisNode.appendChild(create('br', {}));
+			thisNode.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.unit[i][11][0]+1)+' ('+data.unit[i][11][1]+')'}));
+		}
+	}
+	
 }
 
 /* ### UNIT[0:name, 1:race, 2:title/class, 3:attack, 4:health, 5:speed,
@@ -965,10 +1010,8 @@ function translate() {
 
 //https://stackoverflow.com/questions/56300132/how-to-override-css-prefers-color-scheme-setting/75124760#75124760
 //CSS CORS limitations are bothersome in local (i.e. for somebody downloading the compendium). So the CSS is now in .js too :|
-document.querySelector('div.difficulty').appendChild(create('divv', {className: 'colorscheme',onclick: toggleColorScheme},
-	create('span', {id: 'icon-sun', textContent: '🌞'}),
-	create('span', {id: 'icon-moon', textContent: '🌚'})
-));
+document.querySelector('div.difficulty').appendChild(create('div', {className: 'colorscheme', id: 'colorScheme', onclick: toggleColorScheme, textContent: ''}));
+
 var systemScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
 function toggleColorScheme(toggle=true){
 	let targetScheme = localStorage.getItem("scheme");
@@ -979,13 +1022,7 @@ function toggleColorScheme(toggle=true){
 		targetScheme = systemScheme == 'dark' ? 'light' : 'dark';
 	}
 	// Change the toggle button to be the opposite of the current scheme
-    if(targetScheme == 'dark') {
-        document.getElementById("icon-sun").style.display = 'inline';
-        document.getElementById("icon-moon").style.display = 'none';
-    } else {
-        document.getElementById("icon-moon").style.display = 'inline';
-        document.getElementById("icon-sun").style.display = 'none';
-    }
+	document.getElementById("colorScheme").textContent = targetScheme == 'dark' ? '🌞' : '🌚';
 
 	if(targetScheme != systemScheme) {
 		systemScheme = targetScheme;
