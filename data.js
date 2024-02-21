@@ -22,6 +22,19 @@ var data = {
         "summon":[64,65],
         "scaling":[66,67]
     },
+    "faction":[
+        [988,"4d4d4d"],
+        [989,"7310d4"],
+        [990,"b8b200"],
+        [28,"a900a4"],
+        [991,"264bd8"],
+        [992,"ab0004"],
+        [993,"64ba00"],
+        [44,"00bf32"],
+        [994,"b64f04"],
+        [995,"0188a5"],
+        [996,"935b16"]
+    ],
     "stats":[25,26,27],
     "hero": [
         [129,1,128,1,3,1,13,,"Ls",91,1],
@@ -1653,7 +1666,16 @@ var data = {
         "Transform a character into a {kw-summon:29}. The character loses all their equipment. Consumable.",
         "Bag of Gold",
         "Potion of Greater Experience",
-        "Gain +2 XP. Characters that died this battle can't gain XP. Consumable."
+        "Gain +2 XP. Characters that died this battle can't gain XP. Consumable.",
+        "None",
+        "Metal",
+        "Sun",
+        "Hammer",
+        "Heart",
+        "Scale",
+        "Branch",
+        "Skull",
+        "Claw"
     ],
     "palette":[
         "alpha","b24914","db9223","feb72c","212121","fedc8b","cacaca","929292","696969","631b8b","7f3da3","c76ef9","ffffff","887015","e5fa54","b89620",
@@ -7361,3 +7383,6 @@ var data = {
         ]
     ],
 };
+
+
+
