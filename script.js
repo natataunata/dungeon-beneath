@@ -257,9 +257,9 @@ var update_party_slug = function() {
 */
 
 keywords = [
-	['armor'],
-	['hope', '{kw-healthisrecovered}', 'restore'],
-	['power', '{kw-charge}'],
+	['armor', 'summon:12/'],
+	['hope', '{kw-healthisrecovered}', 'restore', 'gains health', 'maximum health'],
+	['power', '{kw-charge}', 'same column', ', attack', ': attack', 'attacks after'],
 	['doom', '{kw-otherunitdies}', 'summon an enemy'],
 	['scheme', '{kw-scheme}'],
 	['summoned', 'summon', '{kw-summon', 'fill', 'ally dies'],
@@ -450,13 +450,59 @@ for(var i = 0, iMax = data.relic.length; i < iMax; i++) {
 */
 
 var unitNode = document.getElementById('ul_Campfire');
+
+function getScaling(scalingString) {
+	if((scalingString.split && scalingString.indexOf('/') != -1)
+		|| (scalingString.join && scalingString[scalingString.length-1].split && scalingString[scalingString.length-1].indexOf('/') != -1)){ //scaling
+		var prefix = false;
+		if(scalingString.join) {
+			prefix = scalingString;
+			scalingString = scalingString.pop();
+		}
+		var scalingArray = [], scalingValue = scalingString.split('/');
+		if(scalingValue[0] == '0' || scalingValue[1] == '0' || scalingValue[2] == '0') { //not too long
+			if(scalingValue[0] != '0') {
+				scalingArray.push('<span class="trigger" langt="'+data.keyword['scaling'][1]+'">'+scalingValue[0]+'</span>');
+			}
+			if(scalingValue[1] != '0') {
+				scalingArray.push(scalingValue[1]);
+			}
+			if(scalingValue[2] != '0') {
+				scalingArray.push('<span class="trigger" langt="'+data.keyword['overleveling'][1]+'">'+(prefix?'+':'')+scalingValue[2]+'</span>');
+			}
+			scalingValue = scalingArray.join('+');
+		} else {
+			scalingArray.push(parseInt(scalingValue[1]) + parseInt(scalingValue[0])*3);
+			if(i < data.lvl3) {
+				scalingArray.unshift(parseInt(scalingValue[1]) + parseInt(scalingValue[0])*2);
+			}
+			if(i < data.lvl2) {
+				scalingArray.unshift(parseInt(scalingValue[1]) + parseInt(scalingValue[0]));
+			}
+			scalingArray = scalingArray.join(',');
+			scalingArray += '<span class="trigger" langt="'+data.keyword['overleveling'][1]+'">+'+(parseInt(scalingValue[0]) + parseInt(scalingValue[2]))+'</span>';
+			scalingValue = scalingArray;
+		}
+		if(prefix) {
+			scalingValue = prefix+scalingValue;
+		}
+		return scalingValue.replaceAll('+-','-');;
+	} else {
+		if(scalingString.join) {
+			scalingString = scalingString.join(',');			
+		}
+		return scalingString;
+	}
+}
+
 for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
+
 	unitNode.appendChild(
 		create('li', {className: 'sheet unit', id: 'unit_'+i},
 			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.unit[i][6])),
 			create('span', {className: 'stats'},
-				create('span', {className: 'atk', textContent: data.unit[i][3] == 0 ? '-': data.unit[i][3]}),
-				create('span', {className: 'hp', textContent: data.unit[i][4]}),
+				create('span', {className: 'atk', innerHTML: data.unit[i][3] == 0 ? '-': getScaling(data.unit[i][3], i)}),
+				create('span', {className: 'hp', innerHTML: getScaling(data.unit[i][4], i)}),
 				create('span', {className: 'spd', textContent: data.unit[i][5]})
 			),
 			create('span', {className: 'name'}, create('span', {lang: data.unit[i][0]})),
@@ -898,20 +944,66 @@ function setDifficulty() {
 
 		if(node) {
 			if(difficulty < 2) {
-				defaultScaling = 0;
-			}
-			if(data.unit[i][4].join) {
-				health = [];
-				for(var j = 0, jMax = data.unit[i][4].length; j < jMax; j++) {
-					if(health[j].indexOf('$') == -1) {
-						health[j] = Math.floor(data.unit[i][4][j] * (1 - defaultScaling/10));
-					}
-				}
+				node.innerHTML = getScaling(data.unit[i][4], i);
 			} else {
-				health = Math.floor(data.unit[i][4] * (1 - defaultScaling/10));
+				var healthCopy = [];
+				if(data.unit[i][4].split) {
+					var scalingValue = data.unit[i][4].split('/');
+					healthCopy.push(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])*3) * (1 - defaultScaling/10) ));
+					if(i < data.lvl3) {
+						healthCopy.unshift(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])*2) * (1 - defaultScaling/10) ));
+					}
+					if(i < data.lvl2) {
+						healthCopy.unshift(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])) * (1 - defaultScaling/10) ));
+					}
+					healthCopy.push('0/0/'+(parseInt(scalingValue[2])+parseInt(scalingValue[0])));
+					node.innerHTML = getScaling(healthCopy, i);
+				} else if(data.unit[i][4].join) {
+					var scalingValue = data.unit[i][4].slice();
+					healthCopy.push(Math.floor( scalingValue[0] * (1 - defaultScaling/10) ));
+					if(i < data.lvl3) {
+						healthCopy.push(Math.floor( scalingValue[1] * (1 - defaultScaling/10) ));
+					}
+					if(i < data.lvl2) {
+						healthCopy.push(Math.floor( scalingValue[2] * (1 - defaultScaling/10) ));
+					}
+					if(scalingValue[3]) {
+						var thisScaling = scalingValue.split('/');
+						healthCopy.push('0/0/'+(parseInt(thisScaling[2])+parseInt(thisScaling[0])));
+					}
+					node.innerHTML = getScaling(healthCopy, i);
+				} else {
+					health = Math.floor(data.unit[i][4] * (1 - defaultScaling/10));
+					node.textContent = health;
+				}
 			}
-			node.textContent = health;
 		}
+	}
+}
+
+function replaceKeyword(wholeString, keyword) {
+	var thisLang = userLang == 0 ? data.L : L;
+	if(keyword.indexOf('summon') != -1) {
+		wholeString = wholeString.split('/');
+		var returnTooltip = [];
+		for(var i = 0, iMax = wholeString.length; i < iMax; i++) {
+			var summonID = wholeString[i].match(/[0-9]+/).shift();
+			//var svgNode = createSVG(24, data.unit2[parseInt(summonID)][8]), node = create('div', {}, svgNode); // nifty but not equal to line height.
+			var innerNode = create('span', {className: 'lnk', tooltip: 'monster_'+summonID, textContent: thisLang[data.unit2[parseInt(summonID)][0]]}), node = create('div', {}, innerNode);
+			returnTooltip.push(node.innerHTML); 
+		}
+		return returnTooltip.join('/');
+	} else if(keyword.indexOf('relic') != -1) {
+		var relicID = wholeString.match(/[0-9]+/).shift();
+		var innerNode = create('span', {className: 'lnk', tooltip: 'relic_'+relicID, textContent: thisLang[data.relic[parseInt(relicID)][0]]}), node = create('div', {}, innerNode);
+		return node.innerHTML;
+	} else if(keyword.indexOf('scaling') != -1) {
+		var scalingID = keyword.split(':');
+		return getScaling(scalingID[1], i);
+	} else if(data.keyword[keyword]) {
+		return '<span class="trigger" title="'+thisLang[data.keyword[keyword][1]]+'">'+thisLang[data.keyword[keyword][0]]+'</span>';
+	} else {
+		console.log('Unsupported keyword '+keyword);
 	}
 }
 
@@ -923,33 +1015,7 @@ function translate() {
 		var thisHTML = [];
 		for(var j = 0, jMax = thisLangT.length; j < jMax; j++) {
 			if(thisLang[thisLangT[j]]) {
-				thisHTML.push(thisLang[thisLangT[j]].replace(/\{kw\-([a-z:0-9/]+)\}/gi, function (wholeString, keyword) {
-					if(data.keyword[keyword]) {
-						return '<span class="trigger" title="'+thisLang[data.keyword[keyword][1]]+'">'+thisLang[data.keyword[keyword][0]]+'</span>';
-					} else if(keyword.indexOf('summon') != -1) {
-						wholeString = wholeString.split('/');
-						var returnTooltip = [];
-						for(var i = 0, iMax = wholeString.length; i < iMax; i++) {
-							var summonID = wholeString[i].match(/[0-9]+/).shift();
-							//var svgNode = createSVG(24, data.unit2[parseInt(summonID)][8]), node = create('div', {}, svgNode); // nifty but not equal to line height.
-							var innerNode = create('span', {className: 'lnk', tooltip: 'monster_'+summonID, textContent: thisLang[data.unit2[parseInt(summonID)][0]]}), node = create('div', {}, innerNode);
-							returnTooltip.push(node.innerHTML); 
-						}
-						return returnTooltip.join('/');
-					} else if(keyword.indexOf('relic') != -1) {
-						var relicID = wholeString.match(/[0-9]+/).shift();
-						var innerNode = create('span', {className: 'lnk', tooltip: 'relic_'+relicID, textContent: thisLang[data.relic[parseInt(relicID)][0]]}), node = create('div', {}, innerNode);
-						return node.innerHTML;
-					} else if(keyword.indexOf('scaling') != -1) {
-						var scalingID = keyword.split(':');
-						return '<span class="trigger" title="'+thisLang[data.keyword[scalingID[0]][1]]+'">{'+(scalingID[1]!='0'?scalingID[1]+'+':'')+thisLang[data.keyword[scalingID[0]][0]]+'}</span>';
-					} else if(keyword.indexOf('channelmana') != -1) {
-						var scalingID = keyword.split(':');
-						return '<span class="trigger" title="'+thisLang[data.keyword[scalingID[0]][1]]+'">'+thisLang[data.keyword[scalingID[0]][0]] + ' {'+(scalingID[1]!='0'?scalingID[1]+' +':'')+thisLang[data.keyword['scaling'][0]]+'}</span>';
-					} else {
-						console.log('Unsupported keyword '+keyword);
-					}
-				}));
+				thisHTML.push(thisLang[thisLangT[j]].replace(/\{kw\-([a-z:0-9/-]+)\}/gi, replaceKeyword));
 			}
 		}
 		allNodes[i].innerHTML = thisHTML.join('<br/>');
@@ -961,7 +1027,7 @@ function translate() {
 			var thisLangT = allNodes[i].getAttribute('langt').split(',');
 			var thisTitle = [];
 			for(var j = 0, jMax = thisLangT.length; j < jMax; j++) {
-				thisTitle.push(thisLang[thisLangT[j]].replace(/\{kw\-([a-z:0-9/]+)\}/gi, function (wholeString, keyword) {
+				thisTitle.push(thisLang[thisLangT[j]].replace(/\{kw\-([a-z:0-9/-]+)\}/gi, function (wholeString, keyword) {
 					if(data.dict.keyword[keyword]) {
 						return thisLang[data.keyword[keyword][0]];
 					} else {
