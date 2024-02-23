@@ -1,5 +1,8 @@
 /*
-	make the UI more like the Game's Book of Champions*/
+	make the UI more like the Game's Book of Champions
+	keyword manacast: remove space once data updated.
+	Add Taz'Gyn Mana.
+	*/
 
 
 /* ###
@@ -268,6 +271,7 @@ keywords = [
 	['counter', '{kw-counter}'],
 	['soulcast','{kw-channelsoul}','max soul'],
 	['bloodcast','{kw-channelblood}', 'beast takes'],
+	['manacast ', '{kw-channelmana'] //need to fix space next time data is changed
 ];
 
 //Path Filter
@@ -324,6 +328,14 @@ document.getElementById('ul_Campfire').appendChild(
 	filterNode
 );
 //Item Filter
+var heroClass = 0;
+for(var i = 0, iMax = data.L.length; i < iMax; i++) {
+	if(data.L[i] == 'Hero') {
+		heroClass = i;
+		break;
+	}
+}
+data.tag[1].push(heroClass);
 var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
 for(var i = 0, iMax = data.tag[0].length; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+data.tag[0][i]}));
@@ -333,6 +345,7 @@ for(var i = 0, iMax = data.tag[1].length; i < iMax; i++) {
 	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+data.tag[1][i]}));
 	filterNode.appendChild(create('label', {lang: data.tag[1][i], for: 'item_filter_'+data.tag[1][i], onclick: filter}));
 }
+
 document.getElementById('ul_Store').appendChild(
 	filterNode
 );
@@ -379,13 +392,7 @@ for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 		11:unlock?/is_starter?/is_24?]
 // ❤ ♥ atk ⚔ spd ⪼
 */
-var heroClass = 0;
-for(var i = 0, iMax = data.L.length; i < iMax; i++) {
-	if(data.L[i] == 'Hero') {
-		heroClass = i;
-		break;
-	}
-}
+
 
 var heroNode = document.getElementById('ul_SelectYourHero');
 for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
