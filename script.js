@@ -1062,7 +1062,7 @@ function translate() {
 		arrayNode.push(i);
 	}
 	arrayNode.sort(function(a,b) {
-		var aFloor = a > data.lvl3 ? 3 : (a > data.lvl2 ?2:1), bFloor = b > data.lvl3 ? 3 : (b > data.lvl2 ?2:1);
+		var aFloor = a >= data.lvl3 ? 3 : (a >= data.lvl2 ?2:1), bFloor = b >= data.lvl3 ? 3 : (b >= data.lvl2 ?2:1);
 		if(aFloor == bFloor) {
 			return thisLang[data.unit[a][0]].localeCompare(thisLang[data.unit[b][0]]);
 		} else {
