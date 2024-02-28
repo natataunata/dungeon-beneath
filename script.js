@@ -1,6 +1,5 @@
 /*
 	make the UI more like the Game's Book of Champions
-	keyword manacast: remove space once data updated.
 	Add Taz'Gyn Mana.
 	*/
 
@@ -271,7 +270,7 @@ keywords = [
 	['counter', '{kw-counter}'],
 	['soulcast','{kw-channelsoul}','max soul'],
 	['bloodcast','{kw-channelblood}', 'beast takes'],
-	['manacast ', '{kw-channelmana'] //need to fix space next time data is changed
+	['manacast', '{kw-channelmana'] //need to fix space next time data is changed
 ];
 
 //Path Filter
