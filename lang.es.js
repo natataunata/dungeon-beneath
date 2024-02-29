@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround}: Otorga +2 de {kw-charge} a un Mago aliado en su misma fila.",
     "Sombra de la Luna Ancestral",
     "Taz'gyn",
-    "{kw-channelmana}: invoca un {kw-summon:0}.",
+    "{kw-channelmana} 2: invoca un {kw-summon:0}.",
     "Invocador ascendido",
     "Si un personaje mata a un enemigo, invoca una {kw-summon:1}.",
     "Taz'gyn, Campeón de la Orden",
