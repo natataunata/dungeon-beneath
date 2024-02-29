@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround}: un mago aliado en esta fila gana 2 de {kw-charge}.",
     "De la luna antigua",
     "Taz'gyn",
-    "{kw-channelmana}: invoca un {kw-summon:0}.",
+    "{kw-channelmana} 2: invoca un {kw-summon:0}.",
     "Invocador ascendido",
     "Si este personaje elimina un enemigo, invoca un {kw-summon:1}.",
     "Taz'gyn, de La Orden",
