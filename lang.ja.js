@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround}: このレーンにいる味方のメイジ1体に+2{kw-charge}を与える。",
     "古き月の",
     "タズギン",
-    "{kw-channelmana}: {kw-summon:0}を1体召喚する。",
+    "{kw-channelmana} 2: {kw-summon:0}を1体召喚する。",
     "超越した召喚士",
     "このキャラクターが敵を倒したとき、{kw-summon:1}を1体召喚する。",
     "騎士団のタズギン",
