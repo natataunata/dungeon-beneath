@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround}：给这行上的一个盟友法师+2 {kw-charge}。",
     "旧月",
     "塔兹金",
-    "{kw-channelmana}：召唤一个 {kw-summon:0}。",
+    "{kw-channelmana} 2：召唤一个 {kw-summon:0}。",
     "升天召唤师",
     "如果这个角色杀死了一个敌人，召唤一个{kw-summon:1}。",
     "骑士团的塔兹吉尼",
