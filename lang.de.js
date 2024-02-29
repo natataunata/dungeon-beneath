@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround}: Gewährt einem Zauberer in dieser Reihe +2 {kw-charge}.",
     "Vom Alten Mond",
     "Taz'gyn",
-    "{kw-channelmana}: Beschwöre einen feindlichen {kw-summon:0}.",
+    "{kw-channelmana} 2: Beschwöre einen feindlichen {kw-summon:0}.",
     "Erleuchteter Beschwörer",
     "Beschwört einen {kw-summon:1}, wann immer dieser Charakter einen Gegner tötet.",
     "Taz'gyn, des Ordens",
