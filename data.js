@@ -841,7 +841,7 @@ var data = {
         "{kw-endofround}: Give an allied Mage in this lane +2 {kw-charge}.",
         "Of the Old Moon",
         "Taz'gyn",
-        "{kw-channelmana}: Summon an enemy {kw-summon:0}.",
+        "{kw-channelmana} 2: Summon an enemy {kw-summon:0}.",
         "Ascended Summoner",
         "If this character kills an enemy, summon a {kw-summon:1}.",
         "Taz'gyn, of the Order",
