@@ -147,7 +147,7 @@ var L = [
     "{kw-endofround} : Donne à un mage allié dans cette colonne +2 {kw-charge}.",
     "De la Vieille Lune",
     "Taz'gyn",
-    "{kw-channelmana} : Invoque une {kw-summon:0}.",
+    "{kw-channelmana} 2 : Invoque une {kw-summon:0}.",
     "Invocateur élevé",
     "Si ce personnage tue un ennemi, invoque un {kw-summon:1}.",
     "Taz'gyn, de l'Ordre",
