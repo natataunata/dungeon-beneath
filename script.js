@@ -870,9 +870,11 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 	pathNode.appendChild(thisNode);
 }
 
+var scrollMe = '';
 function goToTooltip() {
 	document.querySelector('label[for="toggle_'+this.getAttribute('tooltip').split('_').shift()+'"]').click();
-	window.location.hash = this.getAttribute('tooltip');
+	scrollMe = '.pageleft li[tooltip="'+this.getAttribute('tooltip')+'"]';
+	document.querySelector(scrollMe).scrollIntoView();
 }
 
 /*	TOOLTIP FUNCTION
@@ -1101,7 +1103,7 @@ function setDifficulty(e) {
 			}
 		}
 	}
-	document.body.onmouseover({target: document.querySelector('[tooltip="'+tooltipStatus+'"]')}, true);
+	document.getElementById('body').onmouseover({target: document.querySelector('[tooltip="'+tooltipStatus+'"]')}, true);
 }
 
 function replaceKeyword(wholeString, keyword) {
