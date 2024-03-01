@@ -313,20 +313,12 @@ h1, h2 {
 		min-width: 32rem;
 	}
 	.sheet {
-		grid-template-columns: 4rem 4rem 6rem auto 4rem;
+		grid-template-columns: 4rem 4rem auto auto;
 		grid-template-areas:
-			'sprite stats tag name title'
-			'sprite stats desc desc desc'
-			'sprite stats desc desc desc'
+			'tag tag name title'
+			'sprite stats desc desc'
 		;
-	}
-	.sheet.hero {
-		grid-template-columns: 4rem 4rem 6rem auto 4rem;
-		grid-template-areas:
-			'sprite stats name name'
-			'sprite stats tag title'
-			'desc desc desc desc'
-		;
+		align-items: center;
 	}
 	.sheet.item {
 		grid-template-columns: 4rem 6rem auto 4rem 4rem;
@@ -334,6 +326,13 @@ h1, h2 {
 			'sprite tag name title stats'
 			'sprite desc desc desc stats'
 			'sprite desc desc desc stats'
+		;
+	}
+	.sheet.relic {
+		grid-template-columns: 4rem 6rem auto 4rem;
+		grid-template-areas:
+			'sprite name'
+			'sprite desc'
 		;
 	}
 	.pageright .menu {
