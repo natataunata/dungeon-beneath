@@ -896,15 +896,46 @@ document.getElementById('body').onmouseover = function(e, bypass = false){
 	while(parentNode.id != 'description' && parentNode != document.body) {
 		parentNode = parentNode.parentNode;
 	}
-	if(node != document.body && node.getAttribute('tooltip') && (bypass || node.getAttribute('tooltip') != stickyTooltip) && parentNode.id != 'description') {//mouseover behavior
-		tooltipStatus = node.getAttribute('tooltip');
-		descriptionNode.className = document.getElementById(tooltipStatus).className;
-		descriptionNode.innerHTML = document.getElementById(tooltipStatus).innerHTML;
-	} else if(stickyTooltip != '' && stickyTooltip != tooltipStatus) {//click behavior
-		tooltipStatus = stickyTooltip;
-		descriptionNode.className = document.getElementById(stickyTooltip).className;
-		descriptionNode.innerHTML = document.getElementById(stickyTooltip).innerHTML;
+	if(node == document.body || !node.getAttribute('tooltip') || parentNode.id == 'description') {
+		if(stickyTooltip != '' && stickyTooltip != tooltipStatus) {
+			tooltipStatus = stickyTooltip;
+			showTooltip(tooltipStatus);
+		}
+		return;
 	}
+	if(bypass || node.getAttribute('tooltip') != tooltipStatus) {//mouseover behavior
+		tooltipStatus = node.getAttribute('tooltip');
+		showTooltip(tooltipStatus);
+	}
+};
+
+function showTooltip(entityID) {
+	var thisNode = document.getElementById(entityID);
+	var tempNode = create('div', {},
+		create('div', {innerHTML: thisNode.innerHTML, className: thisNode.className})
+	);
+	var supplementalNode = Array.from(document.querySelectorAll('#'+entityID+' [tooltip]'));
+	var toAdd = [], added = [entityID];
+	var currentEntity = 0;
+	while(currentEntity < 10 && supplementalNode.length) {
+		var subNodeID = supplementalNode.shift().getAttribute('tooltip');
+		if(subNodeID && added.indexOf(subNodeID) == -1) {
+			added.push(subNodeID);
+			var subNode = document.getElementById(subNodeID);
+			tempNode.appendChild(
+				create('div', {innerHTML: subNode.innerHTML, className: subNode.className})
+			);
+			var subSupNode = Array.from(document.querySelectorAll('#'+subNodeID+' [tooltip]'));
+			if(subSupNode.length) {
+				toAdd.push(subSupNode);
+			}
+			currentEntity++;
+		}
+		if(!supplementalNode.length && toAdd.length) {
+			supplementalNode = toAdd.shift();
+		}
+	}
+	descriptionNode.innerHTML = tempNode.innerHTML;
 };
 
 /*	HELPER FUNCTIONS
