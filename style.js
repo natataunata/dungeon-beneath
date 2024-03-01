@@ -235,7 +235,7 @@ h1, h2 {
 .sheet {
 	background-color: var(--color_neutral_8);
 	box-sizing: border-box;
-	display: inline-grid;
+	display: grid;
 	border-top: 1px dashed var(--color_neutral_0);
 	grid-template-columns: auto 1fr;
 	grid-template-areas:
