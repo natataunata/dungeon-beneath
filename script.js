@@ -1174,7 +1174,7 @@ function translate() {
 				thisHTML.push(thisLang[thisLangT[j]].replace(/\{kw\-([a-z:0-9/-]+)\}/gi, replaceKeyword));
 			}
 		}
-		allNodes[i].innerHTML = thisHTML.join('<br/>');
+		allNodes[i].innerHTML = thisHTML.join(allNodes[i].className && allNodes[i].className.indexOf('tiny') != -1 ? ' ':'<br/>');
 	}
 	
 	var allNodes = document.querySelectorAll('*[langt]');
