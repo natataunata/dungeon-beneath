@@ -461,7 +461,7 @@ span.hard {
 }
 
 .menuItem.toggled {
-	border-bottom: 0.2em dashed var(--color_neutral_10);
+	border-bottom: 0.2em dashed var(--color_neutral_0);
 }
 .menuItem:not(.toggled):hover {
 	border-bottom: 0.2em dashed var(--color_neutral_7);
