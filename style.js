@@ -328,8 +328,8 @@ h1, h2 {
 			'sprite desc desc desc stats'
 		;
 	}
-	.sheet.relic {
-		grid-template-columns: 4rem 6rem auto 4rem;
+	.sheet.artifact {
+		grid-template-columns: 4rem auto;
 		grid-template-areas:
 			'sprite name'
 			'sprite desc'
