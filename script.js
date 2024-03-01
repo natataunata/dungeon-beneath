@@ -1,7 +1,6 @@
 /*
 	make the UI more like the Game's Book of Champions
-	Add Taz'Gyn Mana.
-	*/
+*/
 
 
 /* ###
@@ -44,56 +43,46 @@
 	}
 	document.getElementById('empty').appendChild(svg);
 });
+var nodeCache = create('div', {hidden: 'hidden'});
+document.getElementById('empty').parentNode.appendChild(nodeCache);
 
 /* ### Building the menu
 */
 
+var nodeMenu = document.querySelector('.pageright .page');
+var nodeSelector = document.querySelector('.pageleft .page')
+
 var nav = create('nav', {className: 'menu', onclick: function() {setTimeout(styleMenu,100);}}), allA = [];
-for(var linkName in data.menu) {
-	allA.push(linkName);
-	thisNode = create('ul', {id: 'ul_'+linkName});
-	document.getElementById('body').appendChild(thisNode);
-	document.getElementById('body').insertBefore(create('input', {type: linkName=='SummoningCircle'?'checkbox':'radio', className: 'toggler', name: linkName=='SummoningCircle'?'toggle_SummoningCircle':'toggle_view', id: 'toggle_'+linkName}),
+for(var i = 0, iMax = data.menu.length; i < iMax; i++) {
+	allA.push(data.menu[i]);
+	thisNode = create('ul', {id: 'ul_'+data.menu[i]});
+	
+	nodeSelector.appendChild(thisNode);
+	nodeSelector.insertBefore(create('input', {type: 'radio', className: 'toggler', name: 'toggle_view', id: 'toggle_'+data.menu[i]}),
 		thisNode
 	);
 	nav.appendChild(
-		create('label', {className: 'menuItem', for: 'toggle_'+linkName},
-			createSVG(24, data.imgRef[linkName].join ? data.imgRef[linkName][0] : data.imgRef[linkName]),
-			create('span', {lang: data.menu[linkName]})
+		create('label', {className: 'menuItem', for: 'toggle_'+data.menu[i], langt: data.imgRef[data.menu[i]][1]},
+			createSVG(24, data.imgRef[data.menu[i]].join ? data.imgRef[data.menu[i]][0] : data.imgRef[data.menu[i]])
 	));
+
 }
 
 function styleMenu() {
-	for(var linkName in data.menu) {
-		var thisNode = document.getElementById('toggle_'+linkName);
-		var labelNode = document.querySelector('label[for="toggle_'+linkName+'"]');
+	for(var i = 0, iMax = data.menu.length; i < iMax; i++) {
+		var thisNode = document.getElementById('toggle_'+data.menu[i]);
+		var labelNode = document.querySelector('.pageright label[for="toggle_'+data.menu[i]+'"]');
 		labelNode.className = 'menuItem'+(thisNode.checked || thisNode.selected ? ' toggled':'');
 	}
 }
 
-//give visibility to the Custom Party.
-var moveNode = document.getElementById('body');
-moveNode.insertBefore(moveNode.lastChild, moveNode.firstChild);
-moveNode.insertBefore(moveNode.lastChild, moveNode.firstChild);
-
-
-
-var difficulty = create('div', {className: 'difficulty'});
+var difficulty = create('select', {className: 'difficulty', onchange: setDifficulty});
 for(var i = 0, iMax = 7; i < iMax; i++) {
-	difficulty.appendChild(create('input', {type: 'radio', name: 'difficulty', id: 'difficulty_'+i}));
-	var toggleNode = create('div', {className: 'toggle'});
-	if(i > 0) {
-		toggleNode.appendChild(create('label', {className: 'previous', for: 'difficulty_'+(i-1), onclick: setDifficulty}));
-	}
-	toggleNode.appendChild(create('span', {lang: data.difficulty[i]}));
-	if(i < iMax-1) {
-		toggleNode.appendChild(create('label', {className: 'next', for: 'difficulty_'+(i+1), onclick: setDifficulty}));
-	}
-	difficulty.appendChild(toggleNode);
+	difficulty.appendChild(create('option', {lang: data.difficulty[i], value: i, selected: i==0?true:false}));
 }
 
 document.querySelector('header').appendChild(difficulty);
-document.querySelector('#header').appendChild(nav);
+nodeMenu.insertBefore(nav, nodeMenu.firstChild);
 
 /* ### Party Builder
 */
@@ -116,7 +105,7 @@ for(var i = 0, iMax = slug_order.length; i < iMax; i++) {
 				var thisCat = [slug_order[i][k][0]];
 				thisCat.push(slug_cat[thisCat[0]]);
 				slug_cat[thisCat[0]]++;
-				if( (thisCat[0] == 'relic' && l%5==0 && i)) {
+				if( (thisCat[0] == 'relic' && l%5==0 && l)) {
 					subNode.appendChild(create('br', {}));
 				}
 				
@@ -131,99 +120,191 @@ for(var i = 0, iMax = slug_order.length; i < iMax; i++) {
 	partyBuilder.appendChild(subNode);
 }
 
-partyBuilder.appendChild(create('div', {id: 'party_slug', textContent: 'slug', lang: data.menu.SummoningCircle, contentEditable: true, onfocusout: loadParty}));
+partyBuilder.appendChild(create('div', {id: 'party_slug', textContent: 'PASTE PARTY CODE HERE', contentEditable: true, onfocusout: loadParty}));
 
-document.getElementById('ul_SummoningCircle').appendChild(partyBuilder);
+nodeMenu.appendChild(partyBuilder);
 
-var placeholder = '';
+var grabState = '';
 
-document.body.onclick = function(e) {
-	var node = e.target;
-	//Blinking and Deletion behavior
-	while((!node.className.indexOf || node.className.indexOf('placeholder') == -1) && node != document.body) {
-		node = node.parentNode;
+document.getElementById('body').onclick = function(e) {
+	var placeholderNode = e.target, tooltipNode = e.target;
+	while((!placeholderNode.className.indexOf || placeholderNode.className.indexOf('placeholder') == -1) && placeholderNode != document.body) {
+		placeholderNode = placeholderNode.parentNode;
 	}
-	if(node != document.body && node.className.indexOf('placeholder') != -1) {
-		if(placeholder != '') {
-			document.getElementById(placeholder).className = document.getElementById(placeholder).className.replace(' blinkbg', '');
+	while(!tooltipNode.getAttribute('tooltip') && tooltipNode != document.body) {
+		tooltipNode = tooltipNode.parentNode;
+	}
+
+	if(!grabState.length) { //empty grabState
+		if(placeholderNode != document.body) {
+			var node = document.getElementById(placeholderNode.id);
+			if(node.firstChild && node.firstChild.getAttribute('tooltip')) {
+				grabState = placeholderNode.id;
+				stickyTooltip = node.firstChild.getAttribute('tooltip');
+				nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '') + ' blink_'+getBlink(stickyTooltip);
+				setTooltip(stickyTooltip);
+			}
+			return;
 		}
-		if(placeholder == node.id) {
-			placeholder = '';
-			node.textContent = '';
+		if (tooltipNode != document.body) { //click on tooltip
+			grabState = tooltipNode.getAttribute('tooltip');
+			stickyTooltip = grabState;
+			setTooltip(stickyTooltip);
+			nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '') + getBlink(stickyTooltip);
+			return;
+		}
+		return;
+	}
+	if(placeholderNode == document.body) { //delete grabState
+		if(grabState.split('_').length == 3) { //was a placeholder
+			document.getElementById(grabState).textContent = '';
 			update_party_slug();
-		} else {
-			placeholder = node.id;
-			node.className = node.className.replace(' blinkbg', '') + ' blinkbg';
 		}
-			return null;
+		grabState = '';
+		nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '');
+		setTooltip('');
+		return;
 	}
-	if(placeholder == '') {
-		return null;
+
+	if(placeholderNode.id == grabState) {//self, cancel grabState
+		grabState = '';
+		nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '');
+		setTooltip('');
+		return;
+	}
+	if(!isCompatible(placeholderNode.id, grabState)) {
+		return;
 	}
 	
-	//Insert Image behavior
-	var regexp_id = [/^(item|relic)/, /^(hero|monster|unit)/];
-	var node = e.target, idType = placeholder.indexOf('unit') == -1 ? 0:1;
-	while(!node.id &&  node != document.body && !regexp_id[idType].test(node.id)) {
-		node = node.parentNode;
-	}
-	if(node != document.body && node.nodeName == 'LI' && regexp_id[idType].test(node.id)) {
-		var IDsplit = node.id.split('_');
-		var placeholderNode = document.getElementById(placeholder);
-
-		var dimSprite = 24, spriteID = -1, entityID = '';
-		
-		if(idType) {
-			if(node.id.indexOf('unit') != -1) {
-				if(placeholderNode.id == 'party_unit_0') {
-					return;
-				}
-				spriteID = data.unit[IDsplit[1]][6];
-				entityID = data.unit[IDsplit[1]][8];
-			} else if(node.id.indexOf('monster') != -1) {
-				spriteID = data.unit2[IDsplit[1]][6];
-				entityID = data.unit2[IDsplit[1]][8];
-				if(data.unit2[IDsplit[1]][11] == 1) {
-					dimSprite = 16;
-				}
-			} else if(node.id.indexOf('hero') != -1) {
-				if(placeholderNode.id != 'party_unit_0') {
-					return;
-				}
-				spriteID = data.hero[IDsplit[1]][6];
-				entityID = data.hero[IDsplit[1]][8];
+	var splitGrabState = grabState.split('_');
+	var splitPlaceholder = placeholderNode.id.split('_');
+	if(splitGrabState.length == 3) { //switching placeholder
+		if(splitGrabState[1] == 'unit') {//have to move items too
+			for(var i = 0, iMax = 3; i < iMax; i++) {
+				var saveItem = getEntity('party_item_'+(parseInt(splitGrabState[2])*3 +i));
+				var otherItem = getEntity('party_item_'+(parseInt(splitPlaceholder[2])*3 +i));
+				putEntityIn(otherItem, 'party_item_'+(parseInt(splitGrabState[2])*3 +i));
+				putEntityIn(saveItem, 'party_item_'+(parseInt(splitPlaceholder[2])*3 +i));
 			}
-		} else {
-			dimSprite = 16;
-			//data.item[i][5] upgrade check
-			if(node.id.indexOf('item') != -1) {
-				if((placeholderNode.id.indexOf('potion')!= -1 &&
-					data.item[IDsplit[1]][5]) ||
-					placeholderNode.id.indexOf('relic') != -1
-				) {
-					return;
-				}
-				spriteID = data.item[IDsplit[1]][6];
-				entityID = data.item[IDsplit[1]][7];
-			} else if(node.id.indexOf('relic') != -1) {
-				if(placeholderNode.id.indexOf('relic') == -1) {
-					return;
-				}
-				spriteID = data.relic[IDsplit[1]][1];
-				entityID = data.relic[IDsplit[1]][3];
-			}
+			var savePotion = getEntity('party_potion_'+(parseInt(splitGrabState[2])-1));
+			var otherPotion = getEntity('party_potion_'+(parseInt(splitPlaceholder[2])-1));
+			putEntityIn(savePotion, 'party_potion_'+(parseInt(splitPlaceholder[2])-1));
+			putEntityIn(otherPotion, 'party_potion_'+(parseInt(splitGrabState[2])-1));
 		}
-
-		placeholderNode.textContent = '';
-		placeholderNode.appendChild(create('span', {className: 'sprite_bg s'+dimSprite, tooltip: node.id, slug: entityID},
-			createSVG(dimSprite, spriteID)
-		));
-		
-		placeholderNode.className = placeholderNode.className.replace(' blinkbg', '');
-		placeholder = '';
-		
-		update_party_slug();
+		var saveEntity = getEntity(placeholderNode.id);
+		var otherEntity = getEntity(splitGrabState.join('_'));
+		putEntityIn(saveEntity, splitGrabState.join('_'));
+		putEntityIn(otherEntity, placeholderNode.id);
+		nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '');
+		setTooltip('');
+		return;
 	}
+	var saveEntity = getEntity(placeholderNode.id);
+	var otherEntity = splitGrabState.join('_');
+	putEntityIn(otherEntity, placeholderNode.id);
+	if(saveEntity && otherEntity) {
+		grabState = saveEntity;
+		setTooltip(grabState);
+	} else {
+		setTooltip('');
+	}
+	nodeMenu.className = nodeMenu.className.replace(/ blink_[a-z]+/, '') + getBlink(grabState);
+	return;
+};
+
+var groupUnit = ['unit', 'monster'], groupItem = ['item', 'potion'];
+function isCompatible(targetID, copyID) { //placeholder, entity or placeholder
+	var prefix1 = targetID.split('_');
+	var prefix2 = copyID.split('_');
+	if(prefix2.length == 3) { //other placeholder
+		prefix2 = getEntity(copyID);
+		if(!prefix2) { //nothing to copy
+			return false;
+		} else {
+			prefix2 = prefix2.split('_');
+		}
+	}
+	if(prefix1[1] == 'relic' && prefix2[0] != 'relic') {
+		return false;
+	}
+	if(targetID == 'party_unit_0') {
+		return prefix2[0] == 'hero';
+	}
+	if(prefix1[1] == 'unit' && groupUnit.indexOf(prefix2[0]) == -1) {
+		return false;
+	}
+	if(prefix1[1] == 'item' && (prefix2[0] != 'item' || !data.item[parseInt(prefix2[1])][5])) {
+		 return false;
+	}
+	if(prefix1[1] == 'potion' && (prefix2[0] != 'item' || data.item[parseInt(prefix2[1])][5])) {
+		 return false;
+	}
+	return true;
+}
+
+var slugInfo = { //property, sprite, slug
+	unit: ['unit', 6, 8],
+	hero: ['hero', 6, 8],
+	monster: ['unit2', 6, 8],
+	item: ['item', 6, 7],
+	relic: ['relic', 1, 3]
+};
+function putEntityIn(entityID, placeholderID) {
+	var node = document.getElementById(placeholderID);
+	node.textContent = '';
+	if(entityID != '') {
+		var dimSprite = 24;
+		var entityType = entityID.split('_');
+		
+		if(entityType[0] == 'relic' || entityType[0] == 'item'
+			|| (entityType[0] == 'monster' && data.unit2[parseInt(entityType[1])][11])) {
+			dimSprite = 16;
+		}
+		
+		var thisEntity = data[slugInfo[entityType[0]][0]][parseInt(entityType[1])];
+		node.appendChild(create('span', {className: 'sprite_bg s'+dimSprite, tooltip: entityID, slug: thisEntity[slugInfo[entityType[0]][2]] },
+			createSVG(dimSprite, thisEntity[slugInfo[entityType[0]][1]])
+		));
+	}
+	grabState = '';
+	
+	update_party_slug();
+}
+function setTooltip(entityID) {
+	if(entityID != '') {
+		tooltipStatus = entityID;
+		tooltip.textContent = '';
+		tooltip.removeAttribute('hidden');
+		var dimSprite = 24;
+		var entityType = entityID.split('_');
+		
+		if(entityType[0] == 'relic' || entityType[0] == 'item'
+			|| (entityType[0] == 'monster' && data.unit2[parseInt(entityType[1])][11])) {
+			dimSprite = 16;
+		}
+		
+		var thisEntity = data[slugInfo[entityType[0]][0]][parseInt(entityType[1])];
+		tooltip.appendChild(create('span', {className: 'sprite_bg s'+dimSprite},
+			createSVG(dimSprite, thisEntity[slugInfo[entityType[0]][1]])
+		));
+	} else {
+		tooltipStatus = 0;
+		tooltip.setAttribute('hidden', 'hidden');
+	}
+}
+function getEntity(placeHolderID) {
+	var node = document.getElementById(placeHolderID).firstChild;
+	if(node && node.getAttribute('tooltip')) {
+		return node.getAttribute('tooltip');
+	}
+	return '';
+}
+function getBlink(entityID) {
+	var thisBlink = entityID != '' ? entityID.split('_')[0] : '';
+	if(thisBlink == 'item' && !data.item[parseInt(entityID.split('_')[1])][5]) {
+		thisBlink = 'potion';
+	}
+	return thisBlink == '' ? '' : ' blink_'+thisBlink;
 }
 
 var update_party_slug = function() {
@@ -252,6 +333,10 @@ var update_party_slug = function() {
 	document.getElementById('party_slug').appendChild(create('a', {href: '?'+data.lang[userLang][1]+'%26p='+thisSlug.join('.'), textContent: thisSlug.join('.')}));
 };
 
+/* EXTENDED DESCRIPTION NODE (goes with tooltip) */
+var descriptionNode = create('div', {className: 'description', id: 'description'});
+document.querySelector('.pageright').firstChild.appendChild(descriptionNode);
+
 
 /* ### Add filter buttons to the Unit and Item divs.
 	dict tag 1-6 = races, 16-20 = class
@@ -274,32 +359,35 @@ keywords = [
 ];
 
 //Path Filter
-var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
-	
-for(var i = 0, iMax = 6; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'path_filter', id: 'path_path_'+i}));
-	filterNode.appendChild(create('label', {lang: data.area[i], for: 'path_path_'+i, onclick: filter}));
+var filterNode = create('select', {className: 'filter filter_path', onchange: filter});
+for(var i = 1, iMax = 6; i < iMax; i++) {
+	filterNode.appendChild(create('option', {className: 'filter_path', lang: data.area[i], value: i, selected: i==1?true:false}));
 }
-document.getElementById('ul_path').appendChild(
-	filterNode
-);
-//Unit Filter
-var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
-for(var i = 1, iMax = 3; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_floor', type: 'checkbox', name: 'unit_floor_filter', id: 'unit_floor_'+i}));
-	filterNode.appendChild(create('label', {lang: data.area[i], for: 'unit_floor_'+i, onclick: filter}));
-}
+document.getElementById('ul_path').appendChild(create('div', {}, filterNode));
 
+//Unit Filter
+filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
+for(var i = 0, iMax = 4; i < iMax; i++) {
+	filterNode.appendChild(create('option', {className: 'filter_floor', lang: data.area[i], value: i, selected: i==0?true:false}));
+}
+document.getElementById('ul_Campfire').appendChild(create('div', {}, filterNode));
+
+filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
+filterNode.appendChild(create('option', {className: 'filter_keyword', lang: 0, value: -1, selected: true}));
 for(var i = 0, iMax = keywords.length; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_keyword', type: 'checkbox', name: 'unit_keyword_filter', id: 'unit_keyword_'+i}));
 	for(var j in data.keyword) {
 		if(keywords[i][0] == data.L[data.keyword[j][0]].toLowerCase()) {
-			filterNode.appendChild(create('label', {lang: data.keyword[j][0], langt: data.keyword[j][1], for: 'unit_keyword_'+i, onclick: filter}));
+			filterNode.appendChild(create('option', {
+				className: 'filter_keyword',
+				lang: data.keyword[j][0],
+				langt: data.keyword[j][1],
+				value: i
+			}));
 			break;
 		}
 	}
-	
 }
+document.getElementById('ul_Campfire').firstChild.appendChild(filterNode);
 
 //TODO ADD RACE AND CLASS FINDER (unit, monster)
 data.tag = [[],[]];
@@ -315,17 +403,21 @@ for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 	}
 }
 
+
+filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
+filterNode.appendChild(create('option', {className: 'filter_race', lang: 0,	value: -1, selected: true}));
 for(var i = 0, iMax = data.tag[0].length; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'unit_race_filter', id: 'unit_race_'+data.tag[0][i]}));
-	filterNode.appendChild(create('label', {lang: data.tag[0][i], for: 'unit_race_'+data.tag[0][i], onclick: filter}));
+	filterNode.appendChild(create('option', {className: 'filter_race', lang: data.tag[0][i], value: data.tag[0][i]}));
 }
+document.getElementById('ul_Campfire').firstChild.appendChild(filterNode);
+
+filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
+filterNode.appendChild(create('option', {className: 'filter_job', lang: 0,	value: -1, selected: true}));
 for(var i = 0, iMax = data.tag[1].length; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'unit_job_filter', id: 'unit_job_'+data.tag[1][i]}));
-	filterNode.appendChild(create('label', {lang: data.tag[1][i], for: 'unit_job_'+data.tag[1][i], onclick: filter}));
+	filterNode.appendChild(create('option', {className: 'filter_job', lang: data.tag[1][i], value: data.tag[1][i]}));
 }
-document.getElementById('ul_Campfire').appendChild(
-	filterNode
-);
+document.getElementById('ul_Campfire').firstChild.appendChild(filterNode);
+
 //Item Filter
 var heroClass = 0;
 for(var i = 0, iMax = data.L.length; i < iMax; i++) {
@@ -335,22 +427,26 @@ for(var i = 0, iMax = data.L.length; i < iMax; i++) {
 	}
 }
 data.tag[1].push(heroClass);
-var filterNode = create('div', {className: 'filter', textContent: '🔍 '});
+
+
+var filterNode = create('select', {className: 'filter filter_item', onchange: filter});
+filterNode.appendChild(create('option', {className: 'filter_race', lang: 0,	value: -1, selected: true}));
 for(var i = 0, iMax = data.tag[0].length; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_race', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+data.tag[0][i]}));
-	filterNode.appendChild(create('label', {lang: data.tag[0][i], for: 'item_filter_'+data.tag[0][i], onclick: filter}));
+	filterNode.appendChild(create('option', {className: 'filter_race', lang: data.tag[0][i], value: data.tag[0][i]}));
 }
 for(var i = 0, iMax = data.tag[1].length; i < iMax; i++) {
-	filterNode.appendChild(create('input', {className: 'filter_job', type: 'checkbox', name: 'item_filter', id: 'item_filter_'+data.tag[1][i]}));
-	filterNode.appendChild(create('label', {lang: data.tag[1][i], for: 'item_filter_'+data.tag[1][i], onclick: filter}));
+	filterNode.appendChild(create('option', {className: 'filter_job', lang: data.tag[1][i], value: data.tag[1][i]}));
 }
 
+
 document.getElementById('ul_Store').appendChild(
-	filterNode
+	create('div', {},
+		create('label', {className: 'switch_itemview', for: 'toggle_VoidRoom', langt: data.imgRef['VoidRoom'][1]},
+			createSVG(24, data.imgRef['VoidRoom'].join ? data.imgRef['VoidRoom'][0] : data.imgRef['VoidRoom'])
+		),
+		filterNode
+	)
 );
-
-
-
 
 
 /* ### ITEM[0:name, 1:race/class, 2:cost, 3:ability, 4:[stats], 5:update,
@@ -369,16 +465,22 @@ for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 			}
 		});
 	}
-	itemNode.appendChild(
-		create('li', {className: 'sheet item', id: 'item_'+i},
+	nodeCache.appendChild(
+		create('div', {className: 'sheet item', id: 'item_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.item[i][6])),
 			create('span', {className: 'name', lang: data.item[i][0]}),
 			create('span', {className: data.item[i][2] < 1?'':'cost', textContent: data.item[i][2] < 1?'':data.item[i][2]}),
 			create('span', {className:'tag', lang: data.item[i][1]}),
 			create('span', {className: 'sprite_bg s16 upgrade', tooltip: data.item[i][5]?'item_'+data.item[i][5]:''}, data.item[i][5]?createSVG(16, data.item[data.item[i][5]][6]):create()),
 			create('span', {className: 'desc', innerHTML: elaborateTooltip.join('')},
-				create('span', {className: 'desc', lang: data.item[i][3]})
+				create('span', {lang: data.item[i][3]})
 			)
+		)
+	);
+	itemNode.appendChild(
+		create('li', {className: '', tooltip: 'item_'+i},
+			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.item[i][6])),
+			create('span', {className: 'name', lang: data.item[i][0]})
 		)
 	);
 	if(data.L[data.item[i][0]] == "Potion of Transformation") {
@@ -395,7 +497,7 @@ for(var i = 0, iMax = data.item.length; i < iMax; i++) {
 
 var heroNode = document.getElementById('ul_SelectYourHero');
 for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
-	heroNode.appendChild(
+	nodeCache.appendChild(
 		create('li', {className: 'sheet hero', id: 'hero_'+i},
 			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.hero[i][6])),
 			create('span', {className: 'name', lang: data.hero[i][0]}),
@@ -413,25 +515,29 @@ for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
 			create('span', {className: 'desc'}, create('span', {lang: data.hero[i][7]?data.hero[i][7].join(','):''}))
 		)
 	);
+	heroNode.appendChild(
+		create('li', {className: '', tooltip: 'hero_'+i},
+			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.hero[i][6])),
+			create('span', {className: 'name', lang: data.hero[i][0]})
+		)
+	);
+	var thisNode = document.getElementById('hero_'+i);
 	if(data.hero[i][9]) {
-		var thisNode = heroNode.lastChild.lastChild;
-		thisNode.appendChild(create('br', {}));
-		thisNode.appendChild(create('span', {className: 'tiny', lang: data.imgRef.CursedRings[1]}));
-		thisNode.appendChild(create('span', {className: 'tiny', textContent: ': '}));
-		thisNode.appendChild(create('span', {className: 'tiny trigger', lang: data.item[data.hero[i][9]][0], tooltip: 'item_'+data.hero[i][9]}));
+		thisNode.lastChild.appendChild(create('br', {}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny', lang: data.imgRef.CursedRings[1]}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny', textContent: ': '}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny trigger', lang: data.item[data.hero[i][9]][0], tooltip: 'item_'+data.hero[i][9]}));
 	}
 	if(data.hero[i][10]) {
-		var thisNode = heroNode.lastChild.lastChild;
-		thisNode.appendChild(create('br', {}));
-		thisNode.appendChild(create('span', {className: 'tiny', lang: transformationPotion}));
-		thisNode.appendChild(create('span', {className: 'tiny', textContent: ': '}));
-		thisNode.appendChild(create('span', {className: 'tiny trigger', lang: data.hero[data.hero[i][10]][0]+','+data.hero[data.hero[i][10]][2], tooltip: 'hero_'+data.hero[i][10]}));
+		thisNode.lastChild.appendChild(create('br', {}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny', lang: transformationPotion}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny', textContent: ': '}));
+		thisNode.lastChild.appendChild(create('span', {className: 'tiny trigger', lang: data.hero[data.hero[i][10]][0]+','+data.hero[data.hero[i][10]][2], tooltip: 'hero_'+data.hero[i][10]}));
 	}
 	if(data.hero[i][11]) {
 		if(data.hero[i][11].length) {
-			var thisNode = heroNode.lastChild.lastChild;
-			thisNode.appendChild(create('br', {}));
-			thisNode.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.hero[i][11][0]+1)+' ('+data.hero[i][11][1]+')'}));
+			thisNode.lastChild.appendChild(create('br', {}));
+			thisNode.lastChild.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.hero[i][11][0]+1)+' ('+data.hero[i][11][1]+')'}));
 		}
 	}
 }
@@ -441,11 +547,17 @@ for(var i = 0, iMax = data.hero.length; i < iMax; i++) {
 
 var artifactNode = document.getElementById('ul_RelicRoom');
 for(var i = 0, iMax = data.relic.length; i < iMax; i++) {
-	artifactNode.appendChild(
+	nodeCache.appendChild(
 		create('li', {className: 'sheet artifact', id: 'relic_'+i},
 			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.relic[i][1])),
 			create('span', {className: 'name', lang: data.relic[i][0]}),
 			create('span', {className: 'desc', lang: data.relic[i][2]})
+		)
+	);
+	artifactNode.appendChild(
+		create('li', {className: '', tooltip: 'relic_'+i},
+			create('span', {className: 'sprite_bg s16'}, createSVG(16, data.relic[i][1])),
+			create('span', {className: 'name', lang: data.relic[i][0]})
 		)
 	);
 }
@@ -503,7 +615,7 @@ function getScaling(scalingString) {
 
 for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 
-	unitNode.appendChild(
+	nodeCache.appendChild(
 		create('li', {className: 'sheet unit', id: 'unit_'+i},
 			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.unit[i][6])),
 			create('span', {className: 'stats'},
@@ -523,18 +635,23 @@ for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 			)
 		)
 	);
+	unitNode.appendChild(
+		create('li', {className: '', tooltip: 'unit_'+i},
+			create('span', {className: 'sprite_bg s24'}, createSVG(24, data.unit[i][6])),
+			create('span', {className: 'name'}, create('span', {lang: data.unit[i][0]}))
+		)
+	);
 	//big dot '⬤'
 	//lock 🔒
-	
+	var thisNode = document.getElementById('unit_'+i);
 	if(data.unit[i][10]) {
-		var thisNode = unitNode.lastChild.childNodes[2];
-		thisNode.insertBefore(create('span', {langt: data.faction[data.unit[i][10]][0], textContent: '⬤ ', style: 'color:#'+data.faction[data.unit[i][10]][1]+';'}), thisNode.firstChild);
+		thisNode.childNodes[2].insertBefore(create('span', {langt: data.faction[data.unit[i][10]][0], textContent: '⬤ ', style: 'color:#'+data.faction[data.unit[i][10]][1]+';'}), thisNode.childNodes[2].firstChild);
+		unitNode.lastChild.childNodes[1].insertBefore(create('span', {langt: data.faction[data.unit[i][10]][0], textContent: '⬤ ', style: 'color:#'+data.faction[data.unit[i][10]][1]+';'}), unitNode.lastChild.childNodes[1].firstChild);
 	}
 	if(data.unit[i][11]) {
 		if(data.unit[i][11].length) {
-			var thisNode = unitNode.lastChild.lastChild;
-			thisNode.appendChild(create('br', {}));
-			thisNode.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.unit[i][11][0]+1)+' ('+data.unit[i][11][1]+')'}));
+			thisNode.lastChild.appendChild(create('br', {}));
+			thisNode.lastChild.appendChild(create('span', {className: 'tiny', textContent: '🔒 '+(data.unit[i][11][0]+1)+' ('+data.unit[i][11][1]+')'}));
 		}
 	}
 	
@@ -547,7 +664,7 @@ for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 
 var unitNode2 = document.getElementById('ul_monster');
 for(var i = 0, iMax = data.unit2.length; i < iMax; i++) {
-	unitNode2.appendChild(
+	nodeCache.appendChild(
 		create('li', {className: 'sheet unit', id: 'monster_'+i},
 			create('span', {className: 'sprite_bg s'+(data.unit2[i][11]?16:24)}, createSVG(data.unit2[i][11]?16:24, data.unit2[i][6])),
 			create('span', {className: 'stats'},
@@ -563,6 +680,12 @@ for(var i = 0, iMax = data.unit2.length; i < iMax; i++) {
 			),
 			create('span', {className: 'reach', lang: data.unit2[i][9]}),
 			create('span', {className: 'desc', lang: data.unit2[i][7]?data.unit2[i][7].join(','):''})
+		)
+	);
+	unitNode2.appendChild(
+		create('li', {className: '', tooltip: 'monster_'+i},
+			create('span', {className: 'sprite_bg s'+(data.unit2[i][11]?16:24)}, createSVG(data.unit2[i][11]?16:24, data.unit2[i][6])),
+			create('span', {className: 'name', lang: data.unit2[i][0]})
 		)
 	);
 }
@@ -682,7 +805,13 @@ function investigateUpgrade(i, sameRestriction = false) {
 }
 
 // Display the Upgrade results
-var upgradeNode = document.getElementById('ul_VoidRoom');
+var upgradeNode = create('div', {id: 'ul_VoidRoom'},
+	create('div', {},
+		create('label', {className: 'switch_itemview', for: 'toggle_Store', langt: data.imgRef['Store'][1]},
+			createSVG(24, data.imgRef['Store'].join ? data.imgRef['Store'][0] : data.imgRef['Store'])
+		)
+	)
+);
 for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	var thisNode = create('p', {});
 	for(var j = 0, jMax = outputUpgrade[i].length; j < jMax; j++) {
@@ -704,6 +833,8 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	}
 	upgradeNode.appendChild(thisNode);
 }
+nodeSelector.appendChild(create('input', {id: 'toggle_VoidRoom', className: 'toggler', type: 'radio', name: 'toggle_view'}));
+nodeSelector.appendChild(upgradeNode);
 
 //Pathing
 var pathNode = document.getElementById('ul_path');
@@ -720,7 +851,7 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 		if(data.imgRef[data.path[i][j][0]]) {
 			thisGroup.appendChild(createSVG(i==1?16:24, data.imgRef[data.path[i][j][0]].join?data.imgRef[data.path[i][j][0]][0]:data.imgRef[data.path[i][j][0]]));
 		} else if(data.path[i][j][0] == "bossPool") {
-			thisGroup.appendChild(createSVG(24, data.imgRef.path));
+			thisGroup.appendChild(createSVG(24, data.imgRef.path[0]));
 			for(var k = 0, kMax = data.bossPool[data.path[i][j][1]].length; k < kMax; k++) {
 				thisGroup.appendChild(create('span', {tooltip: 'monster_'+data.bossPool[data.path[i][j][1]][k], onclick: goToTooltip, className: data.unit2[data.bossPool[data.path[i][j][1]][k]][10]?'hard':''},
 					//create(' '),
@@ -729,7 +860,7 @@ for(var i = 0, iMax = data.path.length; i < iMax; i++) {
 			}
 			if(data.path[i][j][2]) {
 				thisGroup.appendChild(create(' '));
-				thisGroup.appendChild(createSVG(24, data.imgRef.path));
+				thisGroup.appendChild(createSVG(24, data.imgRef.path[0]));
 			}
 		} else {
 			console.log(JSON.stringify(data.path[i][j]) + ' '+i+' '+j);
@@ -749,44 +880,30 @@ function goToTooltip() {
 	Beware not simulating the game by adding too much of it.
 */
 
-var tooltipStatus = 0;
-var tooltip = create('li', {id: 'tooltip', className: 'sheet'});
-document.body.appendChild(tooltip);
+var tooltipStatus = '';
+var stickyTooltip = '';
+/*var tooltip = create('li', {id: 'tooltip', className: 'sheet'});
+document.body.appendChild(tooltip);*/
 
-document.body.onmouseover = function(e){
+document.getElementById('body').onmouseover = function(e, bypass = false){
 	var node = e.target;
 	while(!node.getAttribute('tooltip') && node != document.body) {
 		node = node.parentNode;
 	}
-	if(node != document.body && node.getAttribute('tooltip') && node.getAttribute('tooltip') != tooltipStatus) {
-		//if(tooltipNode) tooltipNode.parentNode.removeChild(tooltipNode);
+	var parentNode = node;
+	while(parentNode.id != 'description' && parentNode != document.body) {
+		parentNode = parentNode.parentNode;
+	}
+	if(node != document.body && node.getAttribute('tooltip') && (bypass || node.getAttribute('tooltip') != stickyTooltip) && parentNode.id != 'description') {//mouseover behavior
 		tooltipStatus = node.getAttribute('tooltip');
-		tooltip.className = document.getElementById(tooltipStatus).className;
-		tooltip.innerHTML= document.getElementById(tooltipStatus).innerHTML;
-		tooltip.style.display = 'inline-grid';
-	} else if(tooltipStatus && node.getAttribute('tooltip') != tooltipStatus) {
-		tooltip.className = '';
-		tooltip.innerHTML = '';
-		tooltip.style.display = 'none';
-		tooltipStatus = 0;
+		descriptionNode.className = document.getElementById(tooltipStatus).className;
+		descriptionNode.innerHTML = document.getElementById(tooltipStatus).innerHTML;
+	} else if(stickyTooltip != '' && stickyTooltip != tooltipStatus) {//click behavior
+		tooltipStatus = stickyTooltip;
+		descriptionNode.className = document.getElementById(stickyTooltip).className;
+		descriptionNode.innerHTML = document.getElementById(stickyTooltip).innerHTML;
 	}
 };
-
-document.addEventListener('mousemove', fn, false);
-function fn(e) {
-	if(tooltipStatus) {
-		if(e.clientX < window.screen.width/2) {
-			tooltip.style.left = Math.max(0,Math.min(e.clientX, window.screen.width - tooltip.clientWidth)) + 'px';
-		} else {
-			tooltip.style.left = Math.max(0,Math.min(e.clientX - tooltip.clientWidth, window.screen.width - tooltip.clientWidth)) + 'px';
-		}
-		if(e.clientY < window.screen.height/2) {
-			tooltip.style.top = (e.clientY+10) + 'px';
-		} else {
-			tooltip.style.top = (e.clientY - tooltip.clientHeight -10) + 'px';
-		}
-	}
-}
 
 /*	HELPER FUNCTIONS
 */
@@ -839,7 +956,17 @@ var filter_map = {
 		return Math.floor(pointer/13) == parseInt(testValue)-1;
 	},
 	//Unit filters
-	floor: function(pointer, testValue) {return pointer < data['lvl'+(parseInt(testValue)+1)]+1;},
+	floor: function(pointer, testValue) {
+		if(testValue == '0') {
+			return true;
+		}
+		if(testValue == '1') {
+			return pointer < data['lvl2'];
+		} else if(testValue == '2') {
+			return pointer < data['lvl3'] && pointer >= data['lvl2'];
+		}
+		return pointer >= data['lvl3'];
+	},
 	keyword: function(pointer, testValue) {
 		var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
 		if(!data.unit[pointer][7].length) {
@@ -860,40 +987,30 @@ var filter_map = {
 	tag: function(pointer, testValue) {return data.item[pointer][1] == testValue || (data.item[pointer][1] == 0 && data.L[testValue] == 'Multiclass');}
 };
 function filter(e) {
-	var filter_key = this.getAttribute('for'),
-		inputNode = document.getElementById(filter_key);
-	var filter_gen = filter_key.split('_');
-	var filter_type = filter_gen[0];
-	filter_gen.pop();
-	filter_gen = filter_gen.join('_');
-	var allNode = document.querySelectorAll('label[for^="'+filter_gen+'"]');
-	for(var i = 0, iMax = allNode.length; i < iMax; i++) {
-		if(allNode.item(i) != this) {
-			document.getElementById(allNode.item(i).getAttribute('for')).checked = false;
-		}
-	}
-	//get all nodes, but unclear about the current one.
-	var allNode = document.querySelectorAll('input[id^="'+filter_type+'"]:checked');
-
-	for(var i = 0, iMax = data[filter_type].length; i < iMax; i++) {
+	var filter_key = e.target.className.split(' ')[1].split('_')[1];
+	var filter_type = e.target.children[e.target.selectedIndex].className.split('_')[1];
+	var filter_value = e.target.children[e.target.selectedIndex].value;
+	
+	var allFilter = document.querySelectorAll('select.filter_'+filter_key);
+	
+	for(var i = 0, iMax = data[filter_key].length; i < iMax; i++) {
 		var include = true;
-		if(inputNode.checked == false) { //check current one
-			var filterTest = filter_key.split('_');
-			include = filter_map[filter_type=='item'?'tag':filterTest[1]](i, filterTest[2]);
-		}
-		for(var j = 0, jMax = allNode.length; j < jMax; j++) { //check all but current one
-			if(allNode[j].id != filter_key) {
-				var filterTest = allNode[j].id.split('_');
-				include = include && filter_map[filterTest[1]](i, filterTest[2]);
-				if(!include) {
-					break;
-				}
+		for(var j = 0, jMax = allFilter.length; j < jMax; j++) {
+			var filterTest = allFilter[j].children[allFilter[j].selectedIndex].value;
+			var filter_type = filter_key == 'item' ? 'tag' : allFilter[j].children[allFilter[j].selectedIndex].className.split('_')[1];
+			if(filterTest > -1) {
+				include = include && filter_map[filter_type](i, filterTest);
+			}
+			if(!include) {
+				break;
 			}
 		}
+		var parentID = e.target.parentNode.parentNode.id;
+		var querySelector = filter_key == 'path' ? ('#'+filter_key+'_'+i) : ('#'+parentID+' [tooltip="'+filter_key+'_'+i+'"]');
 		if(!include) {
-			document.getElementById(filter_type+'_'+i).setAttribute('hidden', true);
+			document.querySelector(querySelector).setAttribute('hidden', true);
 		} else {
-			document.getElementById(filter_type+'_'+i).removeAttribute('hidden');
+			document.querySelector(querySelector).removeAttribute('hidden');
 		}
 	}
 }
@@ -901,9 +1018,8 @@ function filter(e) {
 /* DIFFICULTY MODIFIER
 	Changes price and health of units, item and monsters according to difficulty.
 */
-function setDifficulty() {
-	var difficulty = parseInt(this.getAttribute('for').split('_').pop());
-	
+function setDifficulty(e) {
+	var difficulty = e.target ? e.target.selectedIndex : e;
 	document.getElementById('ul_path').className = difficulty > 0 ? 'hard':'';
 	
 	for(var i = 0, iMax = data.unit2.length; i < iMax; i++) {
@@ -985,6 +1101,7 @@ function setDifficulty() {
 			}
 		}
 	}
+	document.body.onmouseover({target: document.querySelector('[tooltip="'+tooltipStatus+'"]')}, true);
 }
 
 function replaceKeyword(wholeString, keyword) {
@@ -1054,7 +1171,7 @@ function translate() {
 		return thisLang[data.relic[a][0]].localeCompare(thisLang[data.relic[b][0]]);
 	});
 	for(i = 0, iMax = arrayNode.length; i < iMax; i++) {
-	  artefactNode.appendChild(document.getElementById('relic_' + arrayNode[i]));
+	  artefactNode.appendChild(document.querySelector('#ul_RelicRoom [tooltip="relic_' + arrayNode[i] +'"]'));
 	}
 	
 	var unitNode = document.getElementById('ul_Campfire'), arrayNode = [];
@@ -1071,7 +1188,7 @@ function translate() {
 		
 	});
 	for(i = 0, iMax = arrayNode.length; i < iMax; i++) {
-	  unitNode.appendChild(document.getElementById('unit_' + arrayNode[i]));
+	  unitNode.appendChild(document.querySelector('#ul_Campfire [tooltip="unit_' + arrayNode[i] +'"]'));
 	}
 }
 
@@ -1082,7 +1199,7 @@ function translate() {
 
 //https://stackoverflow.com/questions/56300132/how-to-override-css-prefers-color-scheme-setting/75124760#75124760
 //CSS CORS limitations are bothersome in local (i.e. for somebody downloading the compendium). So the CSS is now in .js too :|
-document.querySelector('div.difficulty').appendChild(create('div', {className: 'colorscheme', id: 'colorScheme', onclick: toggleColorScheme, textContent: ''}));
+document.getElementById('header').appendChild(create('div', {className: 'colorscheme', id: 'colorScheme', onclick: toggleColorScheme, textContent: ''}));
 
 var systemScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
 function toggleColorScheme(toggle=true){
@@ -1181,12 +1298,24 @@ var langSelectNode = create('select', {className: 'lang', onchange: loadLang});
 for(var i = 0, iMax = data.lang.length; i < iMax; i++) {
 	langSelectNode.appendChild(create('option', {textContent: data.lang[i][0], value: i, selected: i==userLang?true:false}));
 }
-document.querySelector('div.difficulty').appendChild(langSelectNode)
+document.getElementById('header').appendChild(langSelectNode);
+
+var tooltipStatus = 0;
+var tooltip = create('li', {id: 'tooltip', className: 'tooltip', hidden: 'hidden'});
+document.body.appendChild(tooltip);
+
+document.addEventListener('mousemove', fn, false);
+function fn(e) {
+	if(tooltipStatus) {
+		tooltip.style.left = (e.pageX+10) + 'px';
+		tooltip.style.top = (e.pageY+10) + 'px';
+	}
+}
+
 
 
 document.getElementById('toggle_path').click(); //Let's show some content at least.
-document.getElementById('difficulty_0').click();
-document.querySelector('label[for="path_path_1"]').click();
+filter({target: document.querySelector('select.filter_path')});
 styleMenu();
 
 if(userLang == 0) {
@@ -1197,13 +1326,11 @@ if(userLang == 0) {
 
 //Now thisParty Slug
 if(thisParty != '') {
-	loadParty(thisParty);
+	loadParty({target: {textContent: thisParty}});
 }
 function loadParty(thisParty) {
-	if(this && this.nodeName) {
-		thisParty = this.textContent;
-	} else {
-		document.getElementById('toggle_SummoningCircle').click();
+	if(thisParty.target) {
+		thisParty = thisParty.target.textContent;
 	}
 	thisParty = thisParty.split('.');
 	var slug_column = {
@@ -1226,23 +1353,23 @@ function loadParty(thisParty) {
 							thisAction[0] = 'monster';
 							case 'unit':
 							case 'hero':
+							document.querySelector('.pageleft [tooltip="'+thisAction[0]+'_'+thisAction[1]+'"]').click();
 							document.getElementById('party_unit_'+(i?i-1:0)).click();
-							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							break;
 							case 'relic':
+							document.querySelector('.pageleft [tooltip="'+thisAction[0]+'_'+thisAction[1]+'"]').click();
 							document.getElementById('party_relic_'+(j/2<10?j/2:0)).click();
-							document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							break;
 							case 'item':
 							if(!data.item[k][5]) { //potion
+								document.querySelector('.pageleft [tooltip="'+thisAction[0]+'_'+thisAction[1]+'"]').click();
 								document.getElementById('party_potion_'+(i?i-2:0)).click();
-								document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							} else {
+								document.querySelector('.pageleft [tooltip="'+thisAction[0]+'_'+thisAction[1]+'"]').click();
 								document.getElementById('party_item_'+(((i?i-1:0)*3)+slug_cat.item)).click();
 								if(slug_cat.item < 2) {
 									slug_cat.item++;
 								};
-								document.getElementById(thisAction[0]+'_'+thisAction[1]).click();
 							}
 							break;
 							default:
