@@ -589,10 +589,10 @@ function getScaling(scalingString) {
 			scalingValue = scalingArray.join('+');
 		} else {
 			scalingArray.push(parseInt(scalingValue[1]) + parseInt(scalingValue[0])*3);
-			if(i < data.lvl3) {
+			if(data.unit[i][14] < 3) {
 				scalingArray.unshift(parseInt(scalingValue[1]) + parseInt(scalingValue[0])*2);
 			}
-			if(i < data.lvl2) {
+			if(data.unit[i][14] < 2) {
 				scalingArray.unshift(parseInt(scalingValue[1]) + parseInt(scalingValue[0]));
 			}
 			scalingArray = scalingArray.join(',');
@@ -612,6 +612,15 @@ function getScaling(scalingString) {
 }
 
 for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
+
+	data.unit[i][14] = 1;
+	if(i >= data.innLevel[2]) {
+		data.unit[i][14] = 4;
+	} else if(i > data.innLevel[1]) {
+		data.unit[i][14] = 3;
+	} else if(i > data.innLevel[0]) {
+		data.unit[i][14] = 2;
+	}
 
 	nodeCache.appendChild(
 		create('li', {className: 'sheet unit', id: 'unit_'+i},
@@ -985,12 +994,7 @@ var filter_map = {
 		if(testValue == '0') {
 			return true;
 		}
-		if(testValue == '1') {
-			return pointer < data['lvl2'];
-		} else if(testValue == '2') {
-			return pointer < data['lvl3'] && pointer >= data['lvl2'];
-		}
-		return pointer >= data['lvl3'];
+		return data.unit[pointer][14] == parseInt(testValue);
 	},
 	keyword: function(pointer, testValue) {
 		var filter_regexp = new RegExp('('+keywords[testValue].join('|').replace('{','\\{').replace('}','\\}')+')','i');
@@ -1098,10 +1102,10 @@ function setDifficulty(e) {
 				if(data.unit[i][4].split) {
 					var scalingValue = data.unit[i][4].split('/');
 					healthCopy.push(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])*3) * (1 - defaultScaling/10) ));
-					if(i < data.lvl3) {
+					if(data.unit[i][14] < 3) {
 						healthCopy.unshift(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])*2) * (1 - defaultScaling/10) ));
 					}
-					if(i < data.lvl2) {
+					if(data.unit[i][14] < 2) {
 						healthCopy.unshift(Math.floor( (parseInt(scalingValue[1]) + parseInt(scalingValue[0])) * (1 - defaultScaling/10) ));
 					}
 					healthCopy.push('0/0/'+(parseInt(scalingValue[2])+parseInt(scalingValue[0])));
@@ -1109,10 +1113,10 @@ function setDifficulty(e) {
 				} else if(data.unit[i][4].join) {
 					var scalingValue = data.unit[i][4].slice();
 					healthCopy.push(Math.floor( scalingValue[0] * (1 - defaultScaling/10) ));
-					if(i < data.lvl3) {
+					if(data.unit[i][14] < 3) {
 						healthCopy.push(Math.floor( scalingValue[1] * (1 - defaultScaling/10) ));
 					}
-					if(i < data.lvl2) {
+					if(data.unit[i][14] < 2) {
 						healthCopy.push(Math.floor( scalingValue[2] * (1 - defaultScaling/10) ));
 					}
 					if(scalingValue[3]) {
@@ -1205,8 +1209,7 @@ function translate() {
 		arrayNode.push(i);
 	}
 	arrayNode.sort(function(a,b) {
-		var aFloor = a >= data.lvl3 ? 3 : (a >= data.lvl2 ?2:1), bFloor = b >= data.lvl3 ? 3 : (b >= data.lvl2 ?2:1);
-		if(aFloor == bFloor) {
+		if(data.unit[a][14] == data.unit[b][14]) {
 			return thisLang[data.unit[a][0]].localeCompare(thisLang[data.unit[b][0]]);
 		} else {
 			return a - b;
