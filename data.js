@@ -610,6 +610,7 @@ var data = {
         "RelicRoom",
         "Campfire",
         "Store",
+		"VoidRoom",
         "monster"
     ],
     "imgRef":{
