@@ -449,10 +449,11 @@ span.hard {
 .menuItem {
 	box-sizing: border-box;
 	padding-bottom: 0.5em;
-	width: 5rem;
+	width: 4rem;
 	display: inline-block;
 	color: var(--color_link);
 	cursor: pointer !important;
+	background: var(--color_neutral_6);
 }
 
 .menuItem > span {
@@ -460,10 +461,11 @@ span.hard {
 }
 
 .menuItem.toggled {
-	border-bottom: 0.2em dashed var(--color_neutral_0);
+	background: var(--color_neutral_8);
+	border-bottom: 0.2em dashed var(--color_neutral_6);
 }
 .menuItem:not(.toggled):hover {
-	border-bottom: 0.2em dashed var(--color_neutral_7);
+	border-bottom: 0.2em dashed var(--color_neutral_0);
 }
 
 .party_hero {grid-area: party_hero;}
