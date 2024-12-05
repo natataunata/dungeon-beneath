@@ -234,10 +234,10 @@ function isCompatible(targetID, copyID) { //placeholder, entity or placeholder
 		return false;
 	}
 	if(prefix1[1] == 'item' && (prefix2[0] != 'item' || !data.item[parseInt(prefix2[1])][5])) {
-		 return false;
+		return false;
 	}
 	if(prefix1[1] == 'potion' && (prefix2[0] != 'item' || data.item[parseInt(prefix2[1])][5])) {
-		 return false;
+		return false;
 	}
 	return true;
 }
@@ -355,7 +355,7 @@ keywords = [
 	['counter', '{kw-counter}'],
 	['soulcast','{kw-channelsoul}','max soul'],
 	['bloodcast','{kw-channelblood}', 'beast takes'],
-	['manacast', '{kw-channelmana'] //need to fix space next time data is changed
+	['manacast', '{kw-channelmana']
 ];
 
 //Path Filter
@@ -365,7 +365,7 @@ for(var i = 1, iMax = 6; i < iMax; i++) {
 }
 document.getElementById('ul_path').appendChild(create('div', {}, filterNode));
 
-//Unit Filter
+//Unit Custom Filter (faction but better)
 filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
 for(var i = 0, iMax = 4; i < iMax; i++) {
 	filterNode.appendChild(create('option', {className: 'filter_floor', lang: data.area[i], value: i, selected: i==0?true:false}));
@@ -386,6 +386,14 @@ for(var i = 0, iMax = keywords.length; i < iMax; i++) {
 			break;
 		}
 	}
+}
+document.getElementById('ul_Campfire').firstChild.appendChild(filterNode);
+
+//Faction Filter
+filterNode = create('select', {className: 'filter filter_unit', onchange: filter});
+filterNode.appendChild(create('option', {className: 'filter_faction', lang: 0,	value: -1, selected: true}));
+for(var i = 0, iMax = data.faction.length; i < iMax; i++) {
+	filterNode.appendChild(create('option', {className: 'filter_faction', lang: data.faction[i][0], value: i}));
 }
 document.getElementById('ul_Campfire').firstChild.appendChild(filterNode);
 
@@ -437,16 +445,6 @@ for(var i = 0, iMax = data.tag[0].length; i < iMax; i++) {
 for(var i = 0, iMax = data.tag[1].length; i < iMax; i++) {
 	filterNode.appendChild(create('option', {className: 'filter_job', lang: data.tag[1][i], value: data.tag[1][i]}));
 }
-
-
-document.getElementById('ul_Store').appendChild(
-	create('div', {},
-		create('label', {className: 'switch_itemview', for: 'toggle_VoidRoom', langt: data.imgRef['VoidRoom'][1]},
-			createSVG(24, data.imgRef['VoidRoom'].join ? data.imgRef['VoidRoom'][0] : data.imgRef['VoidRoom'])
-		),
-		filterNode
-	)
-);
 
 
 /* ### ITEM[0:name, 1:race/class, 2:cost, 3:ability, 4:[stats], 5:update,
@@ -805,13 +803,9 @@ function investigateUpgrade(i, sameRestriction = false) {
 }
 
 // Display the Upgrade results
-var upgradeNode = create('div', {id: 'ul_VoidRoom'},
-	create('div', {},
-		create('label', {className: 'switch_itemview', for: 'toggle_Store', langt: data.imgRef['Store'][1]},
-			createSVG(24, data.imgRef['Store'].join ? data.imgRef['Store'][0] : data.imgRef['Store'])
-		)
-	)
-);
+
+var upgradeNode = document.getElementById('ul_VoidRoom');
+
 for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	var thisNode = create('p', {});
 	for(var j = 0, jMax = outputUpgrade[i].length; j < jMax; j++) {
@@ -833,8 +827,6 @@ for(var i = 0, iMax = outputUpgrade.length; i < iMax; i++) {
 	}
 	upgradeNode.appendChild(thisNode);
 }
-nodeSelector.appendChild(create('input', {id: 'toggle_VoidRoom', className: 'toggler', type: 'radio', name: 'toggle_view'}));
-nodeSelector.appendChild(upgradeNode);
 
 //Pathing
 var pathNode = document.getElementById('ul_path');
@@ -1014,6 +1006,7 @@ var filter_map = {
 		}
 		return thisResult;
 	},
+	faction: function(pointer, testValue) {return testValue!='0'?data.unit[pointer][10] == testValue:!data.unit[pointer][10];},
 	race: function(pointer, testValue) {return data.unit[pointer][1] == testValue;},
 	job: function(pointer, testValue) {return data.unit[pointer][2] == testValue;},
 	//Item filter
