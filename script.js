@@ -355,7 +355,8 @@ keywords = [
 	['counter', '{kw-counter}'],
 	['soulcast','{kw-channelsoul}','max soul'],
 	['bloodcast','{kw-channelblood}', 'beast takes'],
-	['manacast', '{kw-channelmana']
+	['manacast', '{kw-channelmana'],
+	['inexhaustible.', 'inexhaustible'] //dot still there :(
 ];
 
 //Path Filter
