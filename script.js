@@ -614,13 +614,13 @@ function getScaling(scalingString) {
 
 for(var i = 0, iMax = data.unit.length; i < iMax; i++) {
 
-	data.unit[i][14] = 1;
-	if(i >= data.innLevel[2]) {
-		data.unit[i][14] = 4;
-	} else if(i > data.innLevel[1]) {
-		data.unit[i][14] = 3;
-	} else if(i > data.innLevel[0]) {
+	data.unit[i][14] = 4;
+	if(i < data.innLevel[0]) {
+		data.unit[i][14] = 1;
+	} else if(i < data.innLevel[1]) {
 		data.unit[i][14] = 2;
+	} else if(i < data.innLevel[2]) {
+		data.unit[i][14] = 3;
 	}
 
 	nodeCache.appendChild(
