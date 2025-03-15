@@ -446,6 +446,7 @@ for(var i = 0, iMax = data.tag[0].length; i < iMax; i++) {
 for(var i = 0, iMax = data.tag[1].length; i < iMax; i++) {
 	filterNode.appendChild(create('option', {className: 'filter_job', lang: data.tag[1][i], value: data.tag[1][i]}));
 }
+document.getElementById('ul_Store').appendChild(create('div', {}, filterNode));
 
 
 /* ### ITEM[0:name, 1:race/class, 2:cost, 3:ability, 4:[stats], 5:update,
