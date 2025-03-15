@@ -50,9 +50,8 @@ Try to avoid nested selectors, except for state-modifier
 	--color_neutral_0: white;
 	--color_neutral_1: #DBCAAB;
 	--color_neutral_2: #C0AD94;
-	
-	--color_neutral_7: #241800;
-	--color_neutral_8: #080809;
+	--color_neutral_7: #282828;
+	--color_neutral_8: #121212;
 	--color_neutral_10: black;
 	
 	--color_path_1: #172300;
@@ -453,7 +452,7 @@ span.hard {
 	display: inline-block;
 	color: var(--color_link);
 	cursor: pointer !important;
-	background: var(--color_neutral_6);
+	background: var(--color_neutral_7);
 }
 
 .menuItem > span {
