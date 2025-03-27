@@ -677,8 +677,8 @@ for(var i = 0, iMax = data.unit2.length; i < iMax; i++) {
 		create('li', {className: 'sheet unit', id: 'monster_'+i},
 			create('span', {className: 'sprite_bg s'+(data.unit2[i][11]?16:24)}, createSVG(data.unit2[i][11]?16:24, data.unit2[i][6])),
 			create('span', {className: 'stats'},
-				create('span', {className: 'atk', textContent: data.unit2[i][3] == 0 ? '-': data.unit2[i][3]}),
-				create('span', {className: 'hp', textContent: data.unit2[i][4].join?data.unit2[i][4][0]:data.unit2[i][4]}),
+				create('span', {className: 'atk', textContent: data.unit2[i][3] == 0 ? '-': getScaling(data.unit2[i][3])}),
+				create('span', {className: 'hp', innerHTML: data.unit2[i][4].join?data.unit2[i][4][0]:getScaling(data.unit2[i][4])}), //Asmodel dirty fix
 				create('span', {className: 'spd', textContent: data.unit2[i][5]})
 			),
 			create('span', {className: 'name', lang: data.unit2[i][0]}),
@@ -1055,27 +1055,29 @@ function setDifficulty(e) {
 	document.getElementById('ul_path').className = difficulty > 0 ? 'hard':'';
 	
 	for(var i = 0, iMax = data.unit2.length; i < iMax; i++) {
-		var node = document.querySelector('#monster_'+i +' .hp'),
-			health = data.unit2[i][4].join ? data.unit2[i][4][0] : data.unit2[i][4],
-			scaling = 0;
-		if(data.unit2[i][4].join && difficulty) { //otherwise no scaling.
-			//default 0: normal, 1:+1 +2 +3, 2:+4 +5, 3:legend, 4+: Keeper/Old God
-			if(data.unit2[i][4].length > 4) {
-				if(data.unit2[i][4][difficulty]) {
-					scaling = data.unit2[i][4][difficulty];
+		if(!data.unit2[i][13]) {
+			var node = document.querySelector('#monster_'+i +' .hp'),
+				health = data.unit2[i][4].join ? data.unit2[i][4][0] : data.unit2[i][4],
+				scaling = 0;
+			if(data.unit2[i][4].join && difficulty) { //otherwise no scaling.
+				//default 0: normal, 1:+1 +2 +3, 2:+4 +5, 3:legend, 4+: Keeper/Old God
+				if(data.unit2[i][4].length > 4) {
+					if(data.unit2[i][4][difficulty]) {
+						scaling = data.unit2[i][4][difficulty];
+					} else {
+						scaling = data.unit2[i][4][data.unit2[i][4].length -1];
+					}
 				} else {
-					scaling = data.unit2[i][4][data.unit2[i][4].length -1];
-				}
-			} else {
-				var difficultyAdjust = [0, 1, 1, 1, 2, 2, 3];
-				if(data.unit2[i][4][difficultyAdjust[difficulty]]) {
-					scaling = data.unit2[i][4][difficultyAdjust[difficulty]];
-				} else {
-					scaling = data.unit2[i][4][data.unit2[i][4].length -1];
+					var difficultyAdjust = [0, 1, 1, 1, 2, 2, 3];
+					if(data.unit2[i][4][difficultyAdjust[difficulty]]) {
+						scaling = data.unit2[i][4][difficultyAdjust[difficulty]];
+					} else {
+						scaling = data.unit2[i][4][data.unit2[i][4].length -1];
+					}
 				}
 			}
+			node.textContent = Math.floor(health * (1 + scaling/10));
 		}
-		node.textContent = Math.floor(health * (1 + scaling/10));
 	}
 	
 	
